@@ -1,122 +1,199 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إنشاء حساب – نظام التوصية السياحي</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب – نظام التوصية السياحي</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
-<style>
-body{
-    margin:0;
-    font-family:"Cairo",sans-serif;
-    height:100vh;
-    background:linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: "Cairo", sans-serif;
+            height: 100vh;
+            background: linear-gradient(rgba(13, 110, 253, 0.8), rgba(0, 0, 0, 0.7)),
+            url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-/* ===== SIGNUP BOX ===== */
-.signup-box{
-    background:rgba(255,255,255,.12);
-    backdrop-filter:blur(10px);
-    width:380px;
-    padding:40px 30px;
-    border-radius:22px;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    color:white;
-}
+        /* ===== SIGNUP CARD ===== */
+        .signup-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px 35px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
 
-.signup-box h2{
-    margin-bottom:25px;
-    font-size:28px;
-    font-weight:700;
-}
+        .brand-logo {
+            font-size: 35px;
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
 
-/* ===== INPUTS ===== */
-.signup-box input{
-    width:100%;
-    padding:12px 14px;
-    margin:12px 0;
-    border-radius:12px;
-    border:none;
-    font-size:16px;
-    outline:none;
-}
+        .signup-card h2 {
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 5px;
+        }
 
-.signup-box input::placeholder{
-    color:#666;
-}
+        .signup-card p.subtitle {
+            color: #6c757d;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
 
-/* ===== BUTTON ===== */
-.signup-box button{
-    width:100%;
-    margin-top:18px;
-    padding:12px;
-    border:none;
-    border-radius:25px;
-    background:#f5d66a;
-    font-size:18px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.3s;
-}
+        /* ===== FORM CONTROLS ===== */
+        .form-control {
+            border-radius: 12px;
+            border: 1px solid #dee2e6;
+            padding-right: 45px !important;
+            height: 50px;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: #0d6efd;
+        }
 
-.signup-box button:hover{
-    background:#ffe066;
-    transform:translateY(-2px);
-}
+        .input-group-text {
+            background: none;
+            border: none;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            color: #adb5bd;
+        }
 
-/* ===== LINKS ===== */
-.signup-box p{
-    margin-top:20px;
-    font-size:15px;
-}
+        /* ===== BUTTON ===== */
+        .btn-signup {
+            width: 100%;
+            padding: 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-top: 10px;
+            transition: 0.3s;
+            background: #0d6efd;
+            border: none;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #0b5ed7;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
 
-.signup-box a{
-    color:#f5d66a;
-    font-weight:600;
-    text-decoration:none;
-}
+        /* ===== LINKS ===== */
+        .footer-links {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .footer-links a {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
 
-.signup-box a:hover{
-    text-decoration:underline;
-}
+        /* ===== MESSAGE ALERT ===== */
+        .msg-alert {
+            background: #fff5f5;
+            color: #e03131;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #ffc9c9;
+        }
 
-/* ===== ERROR / MESSAGE ===== */
-.msg{
-    margin-top:14px;
-    font-size:14px;
-    color:#ffb3b3;
-}
-</style>
+        .back-home {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        .back-home:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="signup-box">
-    <h2>إنشاء حساب جديد</h2>
+    <a href="/" class="back-home"><i class="fa-solid fa-house me-2"></i> الرئيسية</a>
 
-    <form action="{% url 'register' %}" method="POST">
-        {% csrf_token %}
-
-        <input type="text" name="username" placeholder="اسم المستخدم (بدون مسافات)" required>
-        <input type="email" name="email" placeholder="البريد الإلكتروني" required>
-        <input type="password" name="password" placeholder="كلمة المرور" required>
-
-        <button type="submit">تسجيل</button>
+    <div class="signup-card">
+        <div class="brand-logo">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <h2>إنشاء حساب جديد</h2>
+        <p class="subtitle">انضم إلينا وابدأ رحلتك السياحية الذكية اليوم</p>
 
         {% if message %}
-        <div class="msg">{{ message }}</div>
+        <div class="msg-alert">
+            <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
+        </div>
         {% endif %}
-    </form>
 
-    <p>لديك حساب بالفعل؟ <a href="{% url 'login' %}">تسجيل الدخول</a></p>
-</div>
+        <form action="{% url 'register' %}" method="POST">
+            {% csrf_token %}
 
+            <div class="position-relative mb-3">
+                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                <input type="text" name="username" class="form-control" placeholder="اسم المستخدم (بدون مسافات)" required>
+            </div>
+
+            <div class="position-relative mb-3">
+                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                <input type="email" name="email" class="form-control" placeholder="البريد الإلكتروني" required>
+            </div>
+
+            <div class="position-relative mb-4">
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                <input type="password" name="password" class="form-control" placeholder="كلمة المرور" required>
+            </div>
+
+            <div class="form-check text-start mb-4">
+                <input class="form-check-input" type="checkbox" id="terms" required>
+                <label class="form-check-label small text-secondary" for="terms">
+                    أوافق على <a href="#" class="text-decoration-none">الشروط والأحكام</a> وسياسة الخصوصية.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-signup">إنشاء الحساب</button>
+        </form>
+
+        <div class="footer-links">
+            لديك حساب بالفعل؟ <a href="{% url 'login' %}">تسجيل الدخول</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

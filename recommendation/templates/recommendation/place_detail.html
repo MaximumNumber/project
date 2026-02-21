@@ -2,262 +2,321 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ place.name }} – تفاصيل الوجهة السياحية</title>
 
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
             margin: 0;
             font-family: "Cairo", sans-serif;
-            background: #f7f9fc;
+            background: #f8f9fa;
         }
 
-        /* ===== HERO ===== */
-        .hero {
-            background: linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.45)),
-                        url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e")
-                        center/cover no-repeat;
-            padding: 60px 20px;
-            color: #fff;
-            text-align: center;
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: #0d6efd !important;
         }
 
-        .hero h1 {
-            margin: 0;
-            font-size: 36px;
+        /* ===== PLACE HEADER ===== */
+        .place-header {
+            height: 450px;
+            position: relative;
+            background: url("{{ place.image_url|default:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e' }}") center/cover no-repeat;
+            display: flex;
+            align-items: flex-end;
+            color: white;
         }
-
-        /* ===== CONTAINER ===== */
-        .container {
-            width: 92%;
-            max-width: 1200px;
-            margin: 40px auto;
+        .place-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
         }
-
-        /* ===== MAIN CARD ===== */
-        .place-card {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 10px 28px rgba(0,0,0,.1);
-            overflow: hidden;
-        }
-
-        .place-card img.main-image {
+        .header-content {
+            position: relative;
+            z-index: 1;
+            padding-bottom: 40px;
             width: 100%;
-            height: 420px;
-            object-fit: cover;
         }
 
-        .info {
-            padding: 25px;
+        /* ===== MAIN CONTENT ===== */
+        .main-card {
+            background: white;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: -50px;
+            position: relative;
+            z-index: 2;
         }
-
-        .info h2 {
-            margin-top: 0;
-            color: #023e8a;
-        }
-
-        .meta {
-            font-size: 17px;
-            margin: 6px 0;
-        }
-
-        .desc {
-            margin-top: 15px;
-            font-size: 16px;
-            line-height: 1.8;
-            color: #333;
-        }
-
-        .weather {
-            margin-top: 15px;
-            background: #e8f3ff;
-            padding: 10px;
-            border-radius: 10px;
-            display: inline-flex;
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #212529;
+            display: flex;
             align-items: center;
             gap: 10px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+
+        /* ===== INTERACTION BUTTONS ===== */
+        .action-btn {
+            border-radius: 12px;
+            padding: 12px 25px;
             font-weight: 600;
-        }
-
-        /* ===== EXTRA IMAGES ===== */
-        .section-title {
-            margin: 40px 0 15px;
-            font-size: 26px;
-            color: #023e8a;
-            font-weight: 700;
-        }
-
-        .images-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-        }
-
-        .images-grid img {
-            width: 100%;
-            height: 180px;
-            border-radius: 14px;
-            object-fit: cover;
-            box-shadow: 0 4px 14px rgba(0,0,0,.08);
-        }
-
-        /* ===== MAP ===== */
-        .map-box {
-            margin-top: 20px;
-            width: 100%;
-            height: 360px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0,0,0,.1);
-        }
-
-        /* ===== SIMILAR PLACES ===== */
-        .similar-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 22px;
-        }
-
-        .similar-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,.1);
-            overflow: hidden;
-            transition: .3s;
-        }
-
-        .similar-card:hover {
-            transform: translateY(-6px);
-        }
-
-        .similar-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .similar-card .s-info {
-            padding: 14px;
-        }
-
-        .similar-card h3 {
-            margin: 0 0 6px;
-            color: #023e8a;
-        }
-
-        .back-btn {
-            display: block;
-            width: 260px;
-            margin: 50px auto;
-            padding: 15px;
-            background: #023e8a;
-            color: #fff;
-            text-align: center;
-            border-radius: 14px;
-            font-size: 18px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             text-decoration: none;
+        }
+        .btn-favorite {
+            background: #fff0f3;
+            color: #ff4d6d;
+            border: 1px solid #ffccd5;
+        }
+        .btn-favorite:hover {
+            background: #ff4d6d;
+            color: white;
+        }
+
+        /* ===== WEATHER & INFO BOXES ===== */
+        .info-box {
+            background: #f0f7ff;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            height: 100%;
+        }
+        .info-box i {
+            font-size: 24px;
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+
+        /* ===== RATING SECTION ===== */
+        .rating-box {
+            background: #fff9e6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .star-rating {
+            color: #ffc107;
+            font-size: 28px;
+            direction: ltr;
+            display: inline-block;
+        }
+        .star-rating i {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .star-rating i:hover, .star-rating i.active {
+            font-weight: 900;
         }
 
         footer {
-            background: #022b63;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
+            background: #212529;
+            color: white;
+            padding: 40px 0;
             margin-top: 60px;
         }
     </style>
 </head>
-
 <body>
 
-<!-- HERO -->
-<div class="hero">
-    <h1>{{ place.name }}</h1>
-</div>
-
-<!-- CONTENT -->
-<div class="container">
-
-<div class="place-card">
-
-    {% if place.image_url %}
-    <img src="{{ place.image_url }}" class="main-image">
-    {% endif %}
-
-    <div class="info">
-        <h2>{{ place.name }}</h2>
-
-        <div class="meta">🌍 {{ place.country }} – {{ place.city }}</div>
-        <div class="meta">🏷️ {{ place.category }}</div>
-        <div class="meta">⭐ {{ place.rating }}</div>
-
-        <div class="desc">
-            {% if place.semantic_description_ar %}
-                {{ place.semantic_description_ar }}
-            {% else %}
-                {{ place.semantic_description }}
-            {% endif %}
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}"><i class="fa-solid fa-map-location-dot me-2"></i> سياحة ذكية</a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'home' %}" class="btn btn-primary btn-sm rounded-pill">
+                    <i class="fa-solid fa-house me-1"></i> الرئيسية
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <i class="fa-solid fa-arrow-right me-1"></i> عودة
+                </a>
+            </div>
         </div>
+    </nav>
 
-        {% if place.weather %}
-        <div class="weather">
-            <img src="https://openweathermap.org/img/wn/{{ place.weather.icon }}.png" width="40">
-            {{ place.weather.temperature }}°C — {{ place.weather.description }}
+    <!-- PLACE HEADER -->
+    <div class="place-header">
+        <div class="container header-content">
+            <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+                <div>
+                    <span class="badge bg-primary mb-2">{{ place.category }}</span>
+                    <h1 class="fw-bold mb-1">{{ place.name }}</h1>
+                    <p class="mb-0 fs-5"><i class="fa-solid fa-location-dot me-1"></i> {{ place.country }} — {{ place.city }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <!-- ✅ إصلاح زر المفضلة -->
+                    <a href="{% url 'add_favorite' place.name %}" class="btn btn-favorite action-btn">
+                        <i class="fa-solid fa-heart me-2"></i> أضف للمفضلة
+                    </a>
+                    <button class="btn btn-primary action-btn"><i class="fa-solid fa-share-nodes me-2"></i> مشاركة</button>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <div class="container">
+        <!-- عرض رسائل النجاح أو الخطأ -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
         {% endif %}
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- MAIN CARD -->
+                <div class="main-card mb-4">
+                    <h3 class="section-title">📖 عن المكان</h3>
+                    <p class="lead text-secondary" style="line-height: 1.8; text-align: justify;">
+                        {% if place.semantic_description_ar %}
+                            {{ place.semantic_description_ar }}
+                        {% else %}
+                            {{ place.semantic_description }}
+                        {% endif %}
+                    </p>
+
+                    <div class="row g-3 mt-4">
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <i class="fa-solid fa-star"></i>
+                                <div class="fw-bold">التقييم العام</div>
+                                <div class="text-muted">{{ place.rating }} / 5.0</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <i class="fa-solid fa-cloud-sun"></i>
+                                <div class="fw-bold">حالة الطقس</div>
+                                <div class="text-muted">
+                                    {% if place.weather %}
+                                        {{ place.weather.temperature }}°C — {{ place.weather.description }}
+                                    {% else %}
+                                        غير متوفر حالياً
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <i class="fa-solid fa-clock"></i>
+                                <div class="fw-bold">أفضل وقت للزيارة</div>
+                                <div class="text-muted">طوال العام</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RATING & FEEDBACK -->
+                <div class="main-card mb-4">
+                    <h3 class="section-title">⭐ رأيك يهمنا</h3>
+                    <div class="rating-box text-center">
+                        {% if user.is_authenticated %}
+                            <p class="mb-2 fw-bold">كيف تقيم تجربتك في هذا المكان؟</p>
+                            
+                            <!-- ✅ إصلاح نموذج التقييم -->
+                            <form action="{% url 'rate_place' place.id %}" method="POST" id="ratingForm">
+                                {% csrf_token %}
+                                <div class="star-rating mb-3" id="starRating">
+                                    <i class="fa-regular fa-star" data-value="1"></i>
+                                    <i class="fa-regular fa-star" data-value="2"></i>
+                                    <i class="fa-regular fa-star" data-value="3"></i>
+                                    <i class="fa-regular fa-star" data-value="4"></i>
+                                    <i class="fa-regular fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="rating" id="ratingValue" value="5">
+                                <textarea name="comment" class="form-control mb-3" rows="3" placeholder="اكتب تعليقك هنا..."></textarea>
+                                <button type="submit" class="btn btn-warning fw-bold px-5">إرسال التقييم</button>
+                            </form>
+                        {% else %}
+                            <div class="py-3">
+                                <p class="text-muted">يجب عليك تسجيل الدخول لتتمكن من التقييم وإضافة المكان للمفضلة.</p>
+                                <a href="{% url 'login' %}" class="btn btn-primary rounded-pill px-4">تسجيل الدخول الآن</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- MAP -->
+                {% if place.latitude and place.longitude %}
+                <div class="main-card mb-4">
+                    <h3 class="section-title">🗺️ الموقع</h3>
+                    <div class="rounded-4 overflow-hidden" style="height: 250px;">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ place.latitude }},{{ place.longitude }}&hl=ar&z=13&output=embed"
+                            width="100%" height="100%" frameborder="0">
+                        </iframe>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
-</div>
+    <footer>
+        <div class="container text-center">
+            <p class="mb-2">نظام التوصية السياحي الذكي &copy; 2026</p>
+            <div class="small text-muted">
+                تطوير: فارس النذير & مجتبى أحمد | مشروع تخرج بكلاريوس
+            </div>
+        </div>
+    </footer>
 
-<!-- EXTRA IMAGES -->
-{% if place.extra_images %}
-<h2 class="section-title">📸 صور إضافية</h2>
-<div class="images-grid">
-    {% for img in place.extra_images %}
-        <img src="{{ img }}">
-    {% endfor %}
-</div>
-{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ✅ إضافة JavaScript للتحكم بالنجوم -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('#starRating i');
+            const ratingInput = document.getElementById('ratingValue');
 
-<!-- MAP -->
-{% if place.latitude and place.longitude %}
-<h2 class="section-title">🗺️ الموقع على الخريطة</h2>
-<div class="map-box">
-    <iframe
-        src="https://www.google.com/maps?q={{ place.latitude }},{{ place.longitude }}&hl=ar&z=13&output=embed"
-        width="100%" height="100%" frameborder="0">
-    </iframe>
-</div>
-{% endif %}
-
-<!-- SIMILAR PLACES -->
-{% if similar %}
-<h2 class="section-title">✨ أماكن مشابهة</h2>
-<div class="similar-grid">
-{% for s in similar|slice:":3" %}
-<a href="{% url 'place_detail' s.id %}" style="text-decoration:none;color:inherit;">
-<div class="similar-card">
-    <img src="{{ s.image_url }}">
-    <div class="s-info">
-        <h3>{{ s.name }}</h3>
-        <p style="font-size:14px;color:#555;">{{ s.country }}</p>
-    </div>
-</div>
-</a>
-{% endfor %}
-</div>
-{% endif %}
-
-<a href="/rec/search/" class="back-btn">🔙 العودة لنتائج البحث</a>
-
-</div>
-
-<footer>
-    الشروط والأحكام • سياسة الخصوصية<br>
-    <small>تطوير: فارس النذير & مجتبى أحمد</small>
-</footer>
-
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    ratingInput.value = value;
+                    
+                    // تحديث شكل النجوم
+                    stars.forEach(s => {
+                        if (s.getAttribute('data-value') <= value) {
+                            s.classList.remove('fa-regular');
+                            s.classList.add('fa-solid');
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('fa-solid');
+                            s.classList.remove('active');
+                            s.classList.add('fa-regular');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

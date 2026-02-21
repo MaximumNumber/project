@@ -1,271 +1,278 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الملف الشخصي</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الملف الشخصي – {{ user.username }}</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
-<style>
-body{
-    margin:0;
-    font-family:"Cairo",sans-serif;
-    background:#f4f7fb;
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: "Cairo", sans-serif;
+            background: #f0f2f5;
+        }
 
-/* ===== HERO ===== */
-.hero{
-    background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
-    padding:60px 20px;
-    color:#fff;
-    text-align:center;
-}
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: #0d6efd !important;
+        }
 
-.hero h1{
-    margin:0;
-    font-size:34px;
-}
+        /* ===== PROFILE HEADER ===== */
+        .profile-header {
+            background: linear-gradient(45deg, #0d6efd, #00d4ff);
+            height: 200px;
+            margin-bottom: 80px;
+            position: relative;
+        }
 
-/* ===== CONTAINER ===== */
-.container{
-    width:92%;
-    max-width:1200px;
-    margin:40px auto;
-}
+        .profile-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
 
-/* ===== PROFILE CARD ===== */
-.profile-card{
-    background:#fff;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 8px 25px rgba(0,0,0,.1);
-    display:flex;
-    align-items:center;
-    gap:25px;
-}
+        @media (max-width: 768px) {
+            .profile-card {
+                flex-direction: column;
+                text-align: center;
+                top: 50px;
+            }
+            .profile-header { margin-bottom: 250px; }
+        }
 
-.profile-card img{
-    width:130px;
-    height:130px;
-    border-radius:50%;
-    border:4px solid #0077b6;
-    object-fit:cover;
-}
+        .profile-img-container {
+            position: relative;
+        }
 
-.profile-info h2{
-    margin:0;
-    color:#023e8a;
-}
+        .profile-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
 
-.profile-info p{
-    margin:6px 0;
-    font-size:16px;
-    color:#444;
-}
+        .profile-info h2 {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #212529;
+        }
 
-/* ===== TABS ===== */
-.tabs{
-    margin-top:40px;
-    display:flex;
-    justify-content:center;
-    gap:20px;
-}
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
 
-.tab-btn{
-    padding:12px 26px;
-    border-radius:30px;
-    border:none;
-    background:#e0e0e0;
-    font-size:16px;
-    cursor:pointer;
-    transition:.3s;
-}
+        .stat-item {
+            text-align: center;
+        }
 
-.tab-btn.active{
-    background:#023e8a;
-    color:#fff;
-}
+        .stat-value {
+            font-weight: 700;
+            font-size: 18px;
+            display: block;
+        }
 
-/* ===== SECTIONS ===== */
-.section{
-    display:none;
-    margin-top:35px;
-}
+        .stat-label {
+            font-size: 13px;
+            color: #6c757d;
+        }
 
-.section.active{
-    display:block;
-}
+        /* ===== TABS ===== */
+        .nav-pills .nav-link {
+            border-radius: 12px;
+            padding: 12px 25px;
+            font-weight: 600;
+            color: #495057;
+            transition: 0.3s;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+        }
 
-/* ===== CARDS ===== */
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:22px;
-}
+        /* ===== CONTENT CARDS ===== */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
 
-.card{
-    background:#fff;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:0 6px 18px rgba(0,0,0,.1);
-    transition:.3s;
-}
+        .place-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            transition: 0.3s;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 15px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .place-item:hover {
+            background: #f8f9fa;
+            transform: translateX(-5px);
+        }
+        .place-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
 
-.card:hover{
-    transform:translateY(-6px);
-}
-
-.card img{
-    width:100%;
-    height:180px;
-    object-fit:cover;
-}
-
-.card .info{
-    padding:15px;
-}
-
-.card h3{
-    margin:0 0 6px;
-    color:#023e8a;
-}
-
-.card p{
-    font-size:14px;
-    color:#555;
-    margin:4px 0;
-}
-
-.rating{
-    margin-top:6px;
-    color:#ffb703;
-    font-weight:bold;
-}
-
-.remove-btn{
-    width:100%;
-    margin-top:10px;
-    padding:8px;
-    border:none;
-    background:#e63946;
-    color:#fff;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-/* ===== EMPTY ===== */
-.empty{
-    text-align:center;
-    font-size:18px;
-    color:#777;
-}
-</style>
+        footer {
+            background: #212529;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- HERO -->
-<div class="hero">
-    <h1>الملف الشخصي</h1>
-</div>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}"><i class="fa-solid fa-map-location-dot me-2"></i> سياحة ذكية</a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm rounded-pill">تسجيل خروج</a>
+            </div>
+        </div>
+    </nav>
 
-<div class="container">
-
-<!-- PROFILE -->
-<div class="profile-card">
-    <img src="https://i.ibb.co/xY0jfZy/profile-placeholder.png">
-    <div class="profile-info">
-        <h2>{{ username }}</h2>
-        <p>📧 {{ email }}</p>
-        <p>⭐ عدد المفضلات: {{ favorites|length }}</p>
-        <p>✈️ الرحلات السابقة: {{ trips|length }}</p>
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+        <div class="profile-card">
+            <div class="profile-img-container">
+                <!-- صورة افتراضية تعتمد على أول حرف من الاسم -->
+                <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&size=150" alt="User Profile">
+            </div>
+            <div class="profile-info flex-grow-1">
+                <h2>{{ user.username }}</h2>
+                <p class="text-muted mb-2"><i class="fa-solid fa-envelope me-2"></i> {{ user.email }}</p>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">{{ favorites.count }}</span>
+                        <span class="stat-label">مفضلة</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ user.userrating_set.count }}</span>
+                        <span class="stat-label">تقييمات</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <a href="/admin/auth/user/{{ user.id }}/change/" class="btn btn-outline-primary rounded-pill px-4"><i class="fa-solid fa-user-pen me-2"></i> تعديل الحساب</a>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- TABS -->
-<div class="tabs">
-    <button class="tab-btn active" onclick="showTab('fav')">🌟 المفضلات</button>
-    <button class="tab-btn" onclick="showTab('rate')">⭐ التقييمات</button>
-    <button class="tab-btn" onclick="showTab('trip')">✈️ الرحلات السابقة</button>
-</div>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <!-- TABS NAVIGATION -->
+                <ul class="nav nav-pills mb-4 justify-content-center gap-2" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-fav-tab" data-bs-toggle="pill" data-bs-target="#pills-fav" type="button" role="tab">
+                            <i class="fa-solid fa-heart me-2"></i> المفضلة
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-settings-tab" data-bs-toggle="pill" data-bs-target="#pills-settings" type="button" role="tab">
+                            <i class="fa-solid fa-gear me-2"></i> معلوماتي
+                        </button>
+                    </li>
+                </ul>
 
-<!-- FAVORITES -->
-<div id="fav" class="section active">
-{% if favorites %}
-<div class="grid">
-{% for fav in favorites %}
-<div class="card">
-    <img src="{{ fav.place.image_url }}">
-    <div class="info">
-        <h3>{{ fav.place.name }}</h3>
-        <p>{{ fav.place.country }} – {{ fav.place.city }}</p>
-        <a href="/place/{{ fav.place.id }}">عرض التفاصيل</a>
+                <!-- TABS CONTENT -->
+                <div class="tab-content" id="pills-tabContent">
+                    <!-- Favorites Tab -->
+                    <div class="tab-pane fade show active" id="pills-fav" role="tabpanel">
+                        <div class="content-card">
+                            <h4 class="fw-bold mb-4">الأماكن التي أضفتها للمفضلة</h4>
+                            <div class="row">
+                                {% for fav in favorites %}
+                                <div class="col-md-6">
+                                    <a href="{% url 'place_detail' fav.place.id %}" class="place-item">
+                                        <img src="{{ fav.place.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" alt="{{ fav.place.name }}">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">{{ fav.place.name }}</h6>
+                                            <p class="small text-muted mb-0">{{ fav.place.city }}، {{ fav.place.country }}</p>
+                                        </div>
+                                        <i class="fa-solid fa-chevron-left ms-auto text-muted"></i>
+                                    </a>
+                                </div>
+                                {% empty %}
+                                <div class="col-12 text-center py-4">
+                                    <p class="text-muted">لم تقم بإضافة أي أماكن للمفضلة بعد.</p>
+                                    <a href="{% url 'home' %}" class="btn btn-primary btn-sm rounded-pill">اكتشف الأماكن الآن</a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
-        <form method="POST" action="{% url 'remove_favorite' fav.place.id %}">
-            {% csrf_token %}
-            <button class="remove-btn">🗑 إزالة</button>
-        </form>
+                    <!-- Settings Tab -->
+                    <div class="tab-pane fade" id="pills-settings" role="tabpanel">
+                        <div class="content-card">
+                            <h4 class="fw-bold mb-4">معلومات الحساب</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">اسم المستخدم</label>
+                                    <p class="form-control-plaintext border-bottom">{{ user.username }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">البريد الإلكتروني</label>
+                                    <p class="form-control-plaintext border-bottom">{{ user.email }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">تاريخ الانضمام</label>
+                                    <p class="form-control-plaintext border-bottom">{{ user.date_joined|date:"d M Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-{% endfor %}
-</div>
-{% else %}
-<p class="empty">لا توجد أماكن مفضلة بعد</p>
-{% endif %}
-</div>
 
-<!-- RATINGS -->
-<div id="rate" class="section">
-{% if ratings %}
-<div class="grid">
-{% for r in ratings %}
-<div class="card">
-    <img src="{{ r.place.image_url }}">
-    <div class="info">
-        <h3>{{ r.place.name }}</h3>
-        <p class="rating">⭐ تقييمك: {{ r.score }}/5</p>
-        <p>{{ r.comment }}</p>
-    </div>
-</div>
-{% endfor %}
-</div>
-{% else %}
-<p class="empty">لم تقم بتقييم أي مكان بعد</p>
-{% endif %}
-</div>
+    <footer>
+        <div class="container text-center">
+            <p class="mb-2">نظام التوصية السياحي الذكي &copy; 2026</p>
+            <div class="small text-muted">
+                تطوير: فارس النذير & مجتبى أحمد | مشروع تخرج بكلاريوس
+            </div>
+        </div>
+    </footer>
 
-<!-- TRIPS -->
-<div id="trip" class="section">
-{% if trips %}
-<div class="grid">
-{% for t in trips %}
-<div class="card">
-    <img src="{{ t.place.image_url }}">
-    <div class="info">
-        <h3>{{ t.place.name }}</h3>
-        <p>📅 {{ t.visit_date }}</p>
-        <p>🌍 {{ t.place.country }}</p>
-    </div>
-</div>
-{% endfor %}
-</div>
-{% else %}
-<p class="empty">لا توجد رحلات سابقة</p>
-{% endif %}
-</div>
-
-</div>
-
-<script>
-function showTab(id){
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
-}
-</script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

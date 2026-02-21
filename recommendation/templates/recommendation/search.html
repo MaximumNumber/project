@@ -168,11 +168,18 @@
   <div class="logo">Tourism Recommender</div>
   <div class="nav-links">
     <a href="{% url 'home' %}">الرئيسية</a>
-    <a href="{% url 'favorites' %}">المفضلة</a>
-    <a href="{% url 'login' %}">تسجيل الدخول</a>
-    <a href="{% url 'register' %}">إنشاء حساب</a>
+    
+    {% if user.is_authenticated %}
+      <a href="{% url 'favorites' %}">المفضلة</a>
+      <a href="{% url 'profile' %}">الملف الشخصي ({{ user.username }})</a>
+      <a href="{% url 'logout' %}" style="color: #d9534f;">تسجيل الخروج</a>
+    {% else %}
+      <a href="{% url 'login' %}">تسجيل الدخول</a>
+      <a href="{% url 'register' %}">إنشاء حساب</a>
+    {% endif %}
   </div>
 </div>
+
 
 <!-- Hero -->
 <div class="hero">
@@ -220,47 +227,20 @@
       <h2>أفضل 5 وجهات مقترحة</h2>
     
       <div class="cards">
-    
+        {% for place in top_places %}
         <div class="card">
-          <img src="https://images.unsplash.com/photo-1548013146-72479768bada">
-          <div class="info">
-            <h4>الأهرامات</h4>
-            <span>تاريخية • مصر</span>
-          </div>
+          <a href="{% url 'place_detail' place.id %}" style="text-decoration: none; color: inherit;">
+            <img src="{{ place.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" alt="{{ place.name }}">
+            <div class="info">
+              <h4>{{ place.name }}</h4>
+              <span>{{ place.category }} • {{ place.city }}</span>
+              <div style="color: #f5d66a; font-weight: bold; margin-top: 5px;">⭐ {{ place.rating }}</div>
+            </div>
+          </a>
         </div>
-    
-        <div class="card">
-          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
-          <div class="info">
-            <h4>المالديف</h4>
-            <span>شاطئية • استرخاء</span>
-          </div>
-        </div>
-    
-        <div class="card">
-          <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1">
-          <div class="info">
-            <h4>روما</h4>
-            <span>ثقافة • تاريخ</span>
-          </div>
-        </div>
-    
-        <div class="card">
-          <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34">
-          <div class="info">
-            <h4>باريس</h4>
-            <span>رومانسية • سياحة</span>
-          </div>
-        </div>
-    
-        <div class="card">
-          <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee">
-          <div class="info">
-            <h4>دبي</h4>
-            <span>عصرية • تسوق</span>
-          </div>
-        </div>
-    
+        {% empty %}
+        <p>لا توجد وجهات مقترحة حالياً.</p>
+        {% endfor %}
       </div>
     </section>
     

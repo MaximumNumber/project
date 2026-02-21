@@ -1,94 +1,258 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام التوصية السياحي</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام التوصية السياحي</title>
 
-<!-- Bootstrap -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: "Cairo", sans-serif;
+            background: #f8f9fa;
+        }
 
-<style>
-body{
-    margin:0;
-    font-family:"Cairo",sans-serif;
-    background:#f5f7fa;
-}
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: #0d6efd !important;
+        }
 
-/* ===== HERO ===== */
-.hero{
-    height:100vh;
-    background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    color:white;
-    padding:20px;
-}
+        /* ===== HERO ===== */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)),
+            url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
 
-/* ===== SEARCH BOX ===== */
-.search-box{
-    background:rgba(255,255,255,.15);
-    backdrop-filter:blur(10px);
-    padding:45px 35px;
-    border-radius:22px;
-    width:100%;
-    max-width:620px;
-    box-shadow:0 10px 35px rgba(0,0,0,.35);
-}
+        /* ===== SEARCH BOX ===== */
+        .search-box {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
 
-.search-box h2{
-    font-size:30px;
-    font-weight:700;
-    margin-bottom:25px;
-}
+        .search-box h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
 
-/* ===== INPUT ===== */
-.search-box input{
-    height:52px;
-    font-size:18px;
-    border-radius:14px;
-}
+        .search-box input {
+            height: 55px;
+            border-radius: 15px 0 0 15px !important;
+            border: none;
+        }
 
-.btn-search{
-    height:52px;
-    font-size:18px;
-    border-radius:14px;
-    padding:0 28px;
-}
-</style>
+        .btn-search {
+            height: 55px;
+            border-radius: 0 15px 15px 0 !important;
+            padding: 0 30px;
+            font-weight: 600;
+        }
+
+        /* ===== RECOMMENDATIONS SECTION ===== */
+        .section-title {
+            margin: 50px 0 30px;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 4px;
+            background: #0d6efd;
+            border-radius: 2px;
+        }
+
+        .place-card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .place-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        }
+        .place-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+        .place-card .card-body {
+            padding: 20px;
+        }
+        .place-card .rating {
+            color: #ffc107;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .btn-details {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- HERO -->
-<div class="hero">
-    <div class="search-box">
-
-        <h2>🔍 ابحث عن وجهتك السياحية</h2>
-
-        <form action="{% url 'search' %}" method="get">
-            <div class="input-group">
-                <input 
-                    type="text"
-                    class="form-control"
-                    name="query"
-                    placeholder="اكتب اسم المكان أو النشاط…"
-                    required
-                >
-                <button class="btn btn-primary btn-search" type="submit">
-                    بحث
-                </button>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-map-location-dot me-2"></i> سياحة ذكية</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-link active"><a class="nav-link" href="#">الرئيسية</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#">الأماكن</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#">عن النظام</a></li>
+                </ul>
+                <div class="d-flex gap-2 align-items-center">
+                    <!-- يظهر هذا القسم عندما لا يكون المستخدم مسجلاً دخوله -->
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary px-4 rounded-pill">تسجيل دخول</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary px-4 rounded-pill">إنشاء حساب</a>
+                    {% else %}
+                        <!-- يظهر هذا القسم عندما يكون المستخدم مسجلاً دخوله -->
+                        <div class="dropdown">
+                            <a class="btn btn-light rounded-pill px-3 dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-circle-user fs-4 text-primary"></i>
+                                <span class="fw-bold">{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+                                <li><a class="dropdown-item py-2" href="{% url 'profile' %}"><i class="fa-solid fa-user-gear me-2 text-primary"></i> الملف الشخصي</a></li>
+                                <li><a class="dropdown-item py-2" href="#"><i class="fa-solid fa-heart me-2 text-danger"></i> المفضلة</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="#"><i class="fa-solid fa-right-from-bracket me-2"></i> تسجيل الخروج</a></li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </form>
+        </div>
+    </nav>
 
+    <!-- HERO SECTION -->
+    <div class="hero">
+        <div class="search-box">
+            <h1>اكتشف وجهتك القادمة بذكاء</h1>
+            <p class="mb-4">نظامنا يقترح لك أفضل الأماكن بناءً على اهتماماتك وتجارب الآخرين</p>
+            <form action="#" method="get">
+                <div class="input-group">
+                    <input 
+                        type="text"
+                        class="form-control"
+                        name="query"
+                        placeholder="أين تريد الذهاب؟ (مثلاً: دبي، القاهرة، مكة...)"
+                        required
+                    >
+                    <button class="btn btn-primary btn-search" type="submit">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i> بحث
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
+    <!-- RECOMMENDATIONS SECTION -->
+    <div class="container mb-5">
+        <h2 class="section-title">✨ وجهات مقترحة لك</h2>
+        <div class="row">
+            <!-- Place 1 -->
+            <div class="col-md-4">
+                <div class="place-card card">
+                    <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c" class="card-img-top" alt="دبي">
+                    <div class="card-body">
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                            <span class="text-muted ms-2">(4.5)</span>
+                        </div>
+                        <h5 class="card-title fw-bold">برج خليفة - دبي</h5>
+                        <p class="card-text text-muted small">استمتع بإطلالة ساحرة من أعلى ناطحة سحاب في العالم.</p>
+                        <a href="#" class="btn btn-outline-primary w-100 btn-details">عرض التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Place 2 -->
+            <div class="col-md-4">
+                <div class="place-card card">
+                    <img src="https://images.unsplash.com/photo-1503177119275-0aa32b3a9368" class="card-img-top" alt="بالي">
+                    <div class="card-body">
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span class="text-muted ms-2">(5.0)</span>
+                        </div>
+                        <h5 class="card-title fw-bold">جزيرة بالي - إندونيسيا</h5>
+                        <p class="card-text text-muted small">وجهة مثالية لمحبي الطبيعة والاسترخاء وسط الغابات.</p>
+                        <a href="#" class="btn btn-outline-primary w-100 btn-details">عرض التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Place 3 -->
+            <div class="col-md-4">
+                <div class="place-card card">
+                    <img src="https://images.unsplash.com/photo-1547127796-06bb04e4b315" class="card-img-top" alt="القاهرة">
+                    <div class="card-body">
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span class="text-muted ms-2">(4.0)</span>
+                        </div>
+                        <h5 class="card-title fw-bold">أهرامات الجيزة - مصر</h5>
+                        <p class="card-text text-muted small">رحلة عبر التاريخ لاستكشاف إحدى عجائب الدنيا السبع.</p>
+                        <a href="#" class="btn btn-outline-primary w-100 btn-details">عرض التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

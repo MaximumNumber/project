@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-#from .views import test_matrix
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -11,16 +10,14 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
 
-    # لاحظ: لازم destination هنا
+    # إضافة للمفضلة (يستخدم اسم الوجهة)
     path("favorite/add/<str:destination>/", views.add_favorite, name="add_favorite"),
-
-    path("favorites/", views.favorites_page, name="favorites"),
-    path('result/<int:place_id>/', views.place_detail, name='place_detail'),
-    path("profile/", views.profile_view, name="profile"),
     path("favorite/remove/<int:place_id>/", views.remove_favorite, name="remove_favorite"), 
+    path("favorites/", views.favorites_page, name="favorites"),
+
+    # تفاصيل المكان والتقييم (يستخدم ID المكان)
     path("place/<int:place_id>/", views.place_detail, name="place_detail"),
+    path("place/rate/<int:place_id>/", views.rate_place, name="rate_place"),
 
-
-    #path("test-matrix/", test_matrix, name="test_matrix"),
-
+    path("profile/", views.profile_view, name="profile"),
 ]
