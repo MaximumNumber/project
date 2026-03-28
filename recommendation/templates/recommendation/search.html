@@ -5,158 +5,261 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>البحث السياحي | Tourism Recommender</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
   <style>
     :root{
       --primary:#023e8a;
-      --accent:#f5d66a;
-      --bg:#f7f9fc;
+      --secondary:#0077b6;
+      --accent:#ffb703;
+      --bg:#f8f9fa;
+      --white:#ffffff;
     }
 
     body{
       margin:0;
       font-family:'Cairo',sans-serif;
       background:var(--bg);
-      color:#222;
+      color:#333;
     }
 
-    /* ===== Navbar ===== */
+    /* ===== Navbar & Logo ===== */
     .navbar{
-      background:#fff;
-      display:flex;
+      background:var(--white);
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items:center;
-      justify-content:space-between;
-      padding:12px 28px;
-      box-shadow:0 4px 14px rgba(0,0,0,.08);
+      padding:15px 5%;
+      box-shadow:0 2px 15px rgba(0,0,0,.05);
       position:sticky;
       top:0;
-      z-index:100;
+      z-index:1000;
     }
-    .logo{
-      font-weight:700;
-      font-size:20px;
-      color:var(--primary);
+    .user-welcome {
+      text-align: center;
+      font-weight: 600;
+      color: var(--secondary);
+      font-size: 16px;
+      background: #eef6fc;
+      padding: 5px 20px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(2, 62, 138, 0.3);
+    }
+    .logo-text {
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--primary);
+      letter-spacing: -0.5px;
     }
     .nav-links a{
-      margin:0 10px;
+      margin:0 15px;
       text-decoration:none;
-      color:#444;
+      color:#555;
       font-weight:600;
+      transition: 0.3s;
     }
     .nav-links a:hover{ color:var(--primary); }
+    .nav-links .btn-login {
+      background: var(--primary);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+    }
+    .nav-links .btn-login:hover { color: white; opacity: 0.9; }
 
     /* ===== Hero ===== */
     .hero{
-      background:
-        linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
-        url("https://images.unsplash.com/photo-1501785888041-af3ef285b470");
+      background: linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),
+                  url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop");
       background-size:cover;
       background-position:center;
-      padding:60px 30px;
+      padding:100px 20px;
       text-align:center;
       color:#fff;
     }
     .hero h1{
-      font-size:36px;
-      margin-bottom:10px;
+      font-size:42px;
+      margin-bottom:15px;
+      font-weight: 700;
+    }
+    .hero p { font-size: 18px; opacity: 0.9; }
+
+    /* ===== Main Layout (Simplified) ===== */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
     }
 
-    /* ===== Layout ===== */
-    .layout{
-      display:grid;
-      grid-template-columns:260px 1fr;
-      gap:24px;
-      padding:30px;
+    /* ===== Search Box (Modernized) ===== */
+    .search-section {
+      margin-top: -80px;
+      position: relative;
+      z-index: 10;
     }
-
-    /* ===== Filters ===== */
-    .filters{
-      background:#fff;
-      border-radius:14px;
-      padding:20px;
-      box-shadow:0 6px 20px rgba(0,0,0,.08);
-      height:fit-content;
-    }
-    .filters h3{
-      margin-top:0;
-      color:var(--primary);
-      font-size:18px;
-    }
-    .filter-item{
-      margin:12px 0;
-    }
-
-    /* ===== Search Box ===== */
     .search-box{
-      background:#fff;
-      border-radius:16px;
-      padding:30px;
-      box-shadow:0 10px 28px rgba(0,0,0,.1);
-      margin-bottom:28px;
+      background:var(--white);
+      border-radius:20px;
+      padding:40px;
+      box-shadow:0 15px 35px rgba(0,0,0,.1);
+      text-align: center;
     }
-    .search-box h1{
+    .search-box h2{
       margin-top:0;
       color:var(--primary);
+      font-size: 24px;
+      margin-bottom: 25px;
     }
-    .search-input{
-      display:flex;
-      margin-top:16px;
+    
+    /* Search Input Group - Button on the Right (RTL) */
+    .search-group {
+      display: flex;
+      background: #f1f3f5;
+      border-radius: 15px;
+      padding: 5px;
+      border: 2px solid transparent;
+      transition: 0.3s;
     }
-    .search-input input{
-      flex:1;
-      padding:14px;
-      border:1px solid #ddd;
-      border-radius:10px 0 0 10px;
-      font-size:16px;
+    .search-group:focus-within {
+      border-color: var(--primary);
+      background: white;
     }
-    .search-input button{
-      background:var(--accent);
-      border:none;
-      padding:0 26px;
-      font-size:16px;
-      font-weight:700;
-      border-radius:0 10px 10px 0;
-      cursor:pointer;
+    .search-group input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 15px 20px;
+      font-size: 17px;
+      font-family: inherit;
+      outline: none;
+    }
+    .search-group button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0 35px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 17px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-group button:hover {
+      background: var(--secondary);
+      transform: scale(1.02);
     }
 
-    /* ===== Cards ===== */
+    /* ===== Recommendations ===== */
+    .recommendations { margin-top: 50px; }
     .recommendations h2{
       color:var(--primary);
-      margin-bottom:14px;
+      margin-bottom:25px;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+    .recommendations h2::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: #eee;
+    }
+    
     .cards{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:20px;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:25px;
     }
     .card{
-      background:#fff;
-      border-radius:14px;
+      background:var(--white);
+      border-radius:18px;
       overflow:hidden;
-      box-shadow:0 8px 22px rgba(0,0,0,.1);
+      box-shadow:0 10px 25px rgba(0,0,0,.05);
       transition:.3s;
+      border: 1px solid #eee;
     }
-    .card:hover{ transform:translateY(-6px); }
+    .card:hover{ 
+      transform:translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0,0,0,.1);
+    }
+    .card-img-wrapper {
+      position: relative;
+      height: 180px;
+    }
     .card img{
       width:100%;
-      height:150px;
+      height:100%;
       object-fit:cover;
     }
-    .card .info{
-      padding:14px;
+    .card-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255,255,255,0.9);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
     }
+    .card .info{
+      padding:20px;
+    }
+    .card h4 { margin: 0 0 8px 0; font-size: 19px; color: #222; }
+    .card .location { color: #777; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+    .card .rating {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stars { color: var(--accent); font-weight: 700; }
 
     footer{
-      margin-top:40px;
-      background:#022b63;
+      margin-top:60px;
+      background:#011627;
       color:#fff;
-      padding:24px;
+      padding:40px 20px;
       text-align:center;
     }
+    .footer-content { opacity: 0.7; font-size: 14px; }
 
-    @media(max-width:900px){
-      .layout{ grid-template-columns:1fr; }
+    @media(max-width:600px){
+      .hero h1 { font-size: 30px; }
+      .search-box { padding: 25px; }
+      .search-group { flex-direction: column; gap: 10px; background: transparent; }
+      .search-group input { background: #f1f3f5; border-radius: 12px; }
+      .search-group button { padding: 15px; border-radius: 12px; }
     }
   </style>
 </head>
@@ -164,93 +267,105 @@
 <body>
 
 <!-- Navbar -->
-<div class="navbar">
-  <div class="logo">Tourism Recommender</div>
-  <div class="nav-links">
-    <a href="{% url 'home' %}">الرئيسية</a>
-    
+<nav class="navbar">
+  <!-- اليمين: اللوجو -->
+  <a href="{% url 'home' %}" class="logo-container">
+    <div class="logo-icon"><i class="fa-solid fa-earth-africa"></i></div>
+    <div class="logo-text">سياحة ذكية</div>
+  </a>
+
+  <!-- المنتصف: اسم المستخدم -->
+  <div class="navbar-center">
     {% if user.is_authenticated %}
-      <a href="{% url 'favorites' %}">المفضلة</a>
-      <a href="{% url 'profile' %}">الملف الشخصي ({{ user.username }})</a>
-      <a href="{% url 'logout' %}" style="color: #d9534f;">تسجيل الخروج</a>
-    {% else %}
-      <a href="{% url 'login' %}">تسجيل الدخول</a>
-      <a href="{% url 'register' %}">إنشاء حساب</a>
+      <div class="user-welcome">
+        <i class="fa-solid fa-circle-user"></i>
+        مرحباً، {{ user.username }}
+      </div>
     {% endif %}
   </div>
-</div>
 
+  <!-- اليسار: الروابط -->
+  <div class="nav-links">
+    <a href="{% url 'home' %}">الرئيسية</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'favorites' %}">المفضلة</a>
+      <a href="{% url 'profile' %}" class="btn-login">حسابي</a>
+    {% else %}
+      <a href="{% url 'login' %}">دخول</a>
+      <a href="{% url 'register' %}" class="btn-login">ابدأ الآن</a>
+    {% endif %}
+  </div>
+</nav>
 
 <!-- Hero -->
 <div class="hero">
-  <h1>نظام التوصية السياحي الذكي</h1>
-  <p>اكتشف أفضل الوجهات السياحية بناءً على اهتماماتك</p>
+  <h1>اكتشف وجهتك القادمة</h1>
+  <p>نظام ذكي يقترح لك أفضل الأماكن السياحية بناءً على ذوقك الخاص</p>
 </div>
 
-<!-- Layout -->
-<div class="layout">
+<!-- Main Content -->
+<div class="container">
 
-  <!-- Filters -->
-  <aside class="filters">
-    <h3>تصفية النتائج</h3>
-    <div class="filter-item">
-      <label><input type="checkbox" name="top_rated"> الأعلى تقييماً</label>
-    </div>
-    <div class="filter-item">
-      <label><input type="checkbox" name="most_visited"> الأكثر زيارة</label>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <main>
-
-    <!-- ✅ SEARCH FORM (FIXED) -->
-    <section class="search-box">
-      <h1>ابحث عن وجهتك السياحية</h1>
-      <p>اكتب اسم المدينة أو المكان أو نوع النشاط</p>
-
-      <form method="get" action="{% url 'search' %}">
-        <div class="search-input">
-          <input
-            type="text"
-            name="query"
-            placeholder="مثال: الأهرامات، شواطئ، متاحف..."
-            required
-          >
-          <button type="submit">بحث</button>
-        </div>
-      </form>
+    <!-- Search Section -->
+    <section class="search-section">
+      <div class="search-box">
+        <h2>أين تريد الذهاب؟</h2>
+        <form method="get" action="{% url 'search' %}">
+          <div class="search-group">
+            <!-- Button on the Right (First in RTL flow) -->
+            <button type="submit">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              بحث
+            </button>
+            <input
+              type="text"
+              name="query"
+              placeholder="ابحث عن مدينة، معلم سياحي، أو نشاط..."
+              required
+            >
+          </div>
+        </form>
+      </div>
     </section>
 
     <!-- Recommendations -->
     <section class="recommendations">
-      <h2>أفضل 5 وجهات مقترحة</h2>
+      <h2><i class="fa-solid fa-wand-magic-sparkles"></i> وجهات مقترحة لك</h2>
     
       <div class="cards">
         {% for place in top_places %}
         <div class="card">
           <a href="{% url 'place_detail' place.id %}" style="text-decoration: none; color: inherit;">
-            <img src="{{ place.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" alt="{{ place.name }}">
+            <div class="card-img-wrapper">
+              <img src="{{ place.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" alt="{{ place.name }}">
+              <span class="card-badge">{{ place.category }}</span>
+            </div>
             <div class="info">
               <h4>{{ place.name }}</h4>
-              <span>{{ place.category }} • {{ place.city }}</span>
-              <div style="color: #f5d66a; font-weight: bold; margin-top: 5px;">⭐ {{ place.rating }}</div>
+              <div class="location">
+                <i class="fa-solid fa-location-dot"></i>
+                {{ place.city }}، {{ place.country }}
+              </div>
+              <div class="rating">
+                <span class="stars"><i class="fa-solid fa-star"></i> {{ place.rating }}</span>
+                <span class="text-muted small">تفاصيل <i class="fa-solid fa-arrow-left"></i></span>
+              </div>
             </div>
           </a>
         </div>
         {% empty %}
-        <p>لا توجد وجهات مقترحة حالياً.</p>
+        <p class="text-center w-100 py-5 text-muted">لا توجد وجهات مقترحة حالياً.</p>
         {% endfor %}
       </div>
     </section>
     
-
-  </main>
 </div>
 
 <footer>
-  الشروط والأحكام • سياسة الخصوصية
-  <small>تطوير: فارس النذير & مجتبى أحمد</small>
+  <div class="footer-content">
+    <p>نظام التوصية السياحي الذكي &copy; 2026</p>
+    <p>مشروع تخرج بكلاريوس | تطوير: فارس النذير & مجتبى أحمد</p>
+  </div>
 </footer>
 
 </body>

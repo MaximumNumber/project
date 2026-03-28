@@ -20,87 +20,77 @@ from .utils import get_weather, arabic_query_expand
 from .collaborative_filtering import get_collaborative_recommendations
 
 # ----------------------------
-# مسارات البيانات
+# مسارات البيانات (للاستخدامات الأخرى إن وجدت)
 # ----------------------------
 APP_DIR = Path(__file__).resolve().parent
 BASE_DIR = APP_DIR.parent
 
-DATA_AR_PATH  = BASE_DIR / "tourism_data_ar.pkl"
-DATA_EN_PATH  = BASE_DIR / "tourism_data_en.pkl"
-
 # ----------------------------
-# تحميل البيانات
-# ----------------------------
-@lru_cache(maxsize=1)
-def load_data():
-    try:
-        with open(DATA_AR_PATH, "rb") as f:
-            data_ar = pickle.load(f)
-        with open(DATA_EN_PATH, "rb") as f:
-            data_en = pickle.load(f)
-        return data_ar, data_en
-    except Exception as e:
-        print(f"Error loading pkl files: {e}")
-        return [], []
-
-data_ar, data_en = load_data()
-
-# ----------------------------
-# كشف اللغة
+# كشف اللغة ومعالجة النصوص العربية
 # ----------------------------
 def is_arabic_text(text: str) -> bool:
-    if not text:
-        return False
+    if not text: return False
     for ch in text:
-        if "\u0600" <= ch <= "\u06FF":
-            return True
+        if "\u0600" <= ch <= "\u06FF": return True
     return False
 
+def normalize_arabic(text):
+    """تبسيط النص العربي لزيادة مرونة البحث"""
+    if not text: return ""
+    text = text.strip().lower()
+    # توحيد الحروف المتشابهة
+    text = text.replace("أ", "ا").replace("إ", "ا").replace("آ", "ا").replace("ة", "ه").replace("ى", "ي")
+    # إزالة ال التعريف في بداية الكلمات لزيادة مرونة المطابقة
+    words = text.split()
+    normalized_words = []
+    for w in words:
+        if w.startswith("ال") and len(w) > 3:
+            normalized_words.append(w[2:])
+        normalized_words.append(w)
+    return " ".join(set(normalized_words))
+
 # ----------------------------
-# منطق الـ Content-based Recommendation المحسن
+# منطق الـ Content-based Recommendation (قاعدة البيانات فقط)
 # ----------------------------
 def get_content_recommendations(query, is_ar=True, top_k=20):
-    """
-    توصية مبنية على المحتوى مع دعم البحث المرن وتوسيع الكلمات.
-    """
-    # 1. توسيع الاستعلام (إذا كان عربياً)
-    processed_query = arabic_query_expand(query) if is_ar else query
-    search_terms = processed_query.lower().split()
+    clean_query = query.strip().lower()
+    norm_query = normalize_arabic(clean_query) if is_ar else clean_query
+    query_terms = norm_query.split()
     
-    # 2. البحث في قاعدة البيانات باستخدام Q objects للبحث المرن
+    # البحث في قاعدة البيانات فقط (التي قام المستخدم بتنظيفها)
     query_filter = Q()
-    for term in search_terms:
-        query_filter |= (
-            Q(name__icontains=term) | 
-            Q(city__icontains=term) | 
-            Q(category__icontains=term) |
-            Q(semantic_description__icontains=term) |
-            Q(semantic_description_ar__icontains=term) |
-            Q(features__icontains=term) |
-            Q(interests__icontains=term)
-        )
+    for term in query_terms:
+        if len(term) > 1:
+            query_filter |= (Q(name__icontains=term) | Q(city__icontains=term) | Q(category__icontains=term))
+            if is_ar:
+                query_filter |= Q(semantic_description_ar__icontains=term)
+    
+    # محاولة إضافية للبحث بالكلمة الأصلية لضمان عدم ضياع النتائج
+    query_filter |= Q(name__icontains=clean_query)
     
     places = Place.objects.filter(query_filter).distinct()
     
     results = []
     for p in places:
-        score = 0
         p_name = p.name.lower()
-        p_city = p.city.lower()
-        p_desc = (p.semantic_description_ar + p.semantic_description).lower()
+        p_name_norm = normalize_arabic(p.name) if is_ar else p_name
         
-        # حساب النقاط بناءً على مطابقة الكلمات
-        for term in search_terms:
-            if term in p_name: score += 1.0
-            if term in p_city: score += 0.5
-            if term in p_desc: score += 0.2
-        
-        results.append({
-            "place": p,
-            "content_score": score
-        })
+        # حساب النسبة المئوية بطريقة مرنة
+        score = 0.0
+        # 1. تطابق تام أو شبه تام في الاسم (100%)
+        if clean_query in p_name or p_name in clean_query or norm_query in p_name_norm:
+            score = 100.0
+        else:
+            # 2. تطابق جزئي بناءً على الكلمات المشتركة في الاسم والوصف
+            p_full_text = f"{p.name} {p.city} {p.category} {p.semantic_description_ar if is_ar else p.semantic_description}".lower()
+            p_full_norm = normalize_arabic(p_full_text) if is_ar else p_full_text
             
-    results.sort(key=lambda x: x["content_score"], reverse=True)
+            matches = sum(1 for term in query_terms if term in p_full_norm)
+            score = (matches / len(query_terms)) * 100 if query_terms else 0
+            
+        results.append({"place": p, "content_score": score})
+            
+    results.sort(key=lambda x: (x["content_score"], x["place"].rating), reverse=True)
     return results[:top_k]
 
 # ----------------------------
@@ -113,22 +103,20 @@ def search(request):
 
     is_ar = is_arabic_text(query)
     
-    # 1. جلب نتائج المحتوى (Content-based)
+    # جلب نتائج قاعدة البيانات فقط (تم إلغاء ملفات pkl لضمان نظافة البيانات)
     content_results = get_content_recommendations(query, is_ar=is_ar)
     
-    # 2. جلب نتائج التصفية التعاونية (Collaborative)
     collab_scores = {}
     if request.user.is_authenticated:
         collab_scores = get_collaborative_recommendations(request.user.id)
 
-    # 3. دمج النتائج (Hybrid)
     hybrid_results = []
     for res in content_results:
         place = res["place"]
         c_score = res["content_score"]
-        coll_score = collab_scores.get(place.id, 0)
+        raw_coll_score = collab_scores.get(place.id, 0)
+        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score
         
-        # دمج النقاط: 70% محتوى + 30% تعاوني
         final_score = (c_score * 0.7) + (coll_score * 0.3)
         
         hybrid_results.append({
@@ -138,47 +126,28 @@ def search(request):
             "category": place.category,
             "rating": place.rating,
             "description": place.semantic_description_ar if is_ar else place.semantic_description,
-            "score": final_score,
+            "score": round(final_score, 2),
             "place_id": place.id,
             "image_url": place.image_url,
         })
 
-    # خطة احتياطية: إذا لم توجد نتائج في DB، ابحث في ملفات pkl
     if not hybrid_results:
-        data = data_ar if is_ar else data_en
-        search_terms = query.lower().split()
-        for item in data:
-            item_text = str(item).lower()
-            if any(term in item_text for term in search_terms):
-                hybrid_results.append({
-                    "name": item.get("Destination") or item.get("name"),
-                    "city": item.get("City", ""),
-                    "country": item.get("Country", ""),
-                    "category": item.get("Category", ""),
-                    "rating": item.get("Rating", 0),
-                    "description": item.get("semantic_description_ar") if is_ar else item.get("semantic_description"),
-                    "score": 0.1,
-                    "place_id": None,
-                    "image_url": item.get("Image url", ""),
-                })
+        return render(request, "recommendation/results.html", {"message": "لا توجد نتائج مطابقة في قاعدة البيانات، جرب كلمات أخرى", "query": query})
 
-    if not hybrid_results:
-        return render(request, "recommendation/results.html", {"message": "لا توجد نتائج مطابقة، جرب كلمات أخرى"})
-
+    # ترتيب النتائج حسب السكور النهائي
     hybrid_results.sort(key=lambda x: x["score"], reverse=True)
-    results = hybrid_results[:10] # زيادة عدد النتائج المعروضة قليلاً
+    results = hybrid_results[:10]
 
     for item in results:
         if item["city"]:
             item["weather"] = get_weather(item["city"])
 
-    return render(request, "recommendation/results.html", {"results": results})
+    return render(request, "recommendation/results.html", {"results": results, "query": query})
 
 # ----------------------------
 # الدوال الأساسية الأخرى
 # ----------------------------
 def home(request):
-    # جلب أفضل 5 أماكن بناءً على التقييم من قاعدة البيانات
     top_places = Place.objects.all().order_by('-rating')[:5]
     return render(request, "recommendation/search.html", {"top_places": top_places})
 
@@ -223,7 +192,15 @@ def logout_view(request):
 
 def place_detail(request, place_id):
     place = get_object_or_404(Place, id=place_id)
-    return render(request, "recommendation/place_detail.html", {"place": place})
+    similar_places = Place.objects.filter(
+        Q(category=place.category) | Q(city=place.city)
+    ).exclude(id=place.id).order_by('-rating')[:2]
+    
+    context = {
+        "place": place,
+        "similar_places": similar_places,
+    }
+    return render(request, "recommendation/place_detail.html", context)
 
 def profile_view(request):
     user = request.user

@@ -13,187 +13,317 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root{
+            --primary:#023e8a;
+            --secondary:#0077b6;
+            --accent:#ffb703;
+            --bg:#f8f9fa;
+            --white:#ffffff;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+        }
+
         body {
             margin: 0;
             font-family: "Cairo", sans-serif;
-            background: #f8f9fa;
+            background: var(--bg);
+            color: var(--text-dark);
         }
 
-        /* ===== NAVBAR ===== */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        /* ===== NAVBAR (Same as Home/Results) ===== */
+        .navbar{
+            background:var(--white);
+            display:grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items:center;
+            padding:15px 5%;
+            box-shadow:0 2px 15px rgba(0,0,0,.05);
+            position:sticky;
+            top:0;
+            z-index:1000;
         }
-        .navbar-brand {
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .logo-text {
             font-weight: 700;
-            color: #0d6efd !important;
+            font-size: 22px;
+            color: var(--primary);
         }
+        .user-welcome {
+            text-align: center;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 16px;
+            background: #eef6fc;
+            padding: 5px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-nav {
+            background: var(--primary);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-nav-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary) !important;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-nav:hover, .btn-nav-outline:hover { transform: scale(1.05); opacity: 0.9; }
 
-        /* ===== PLACE HEADER ===== */
-        .place-header {
-            height: 450px;
+        /* ===== PLACE HERO ===== */
+        .place-hero {
+            height: 500px;
             position: relative;
             background: url("{{ place.image_url|default:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e' }}") center/cover no-repeat;
             display: flex;
             align-items: flex-end;
             color: white;
         }
-        .place-header::before {
+        .place-hero::before {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(transparent, rgba(0,0,0,0.8));
         }
-        .header-content {
+        .hero-content {
             position: relative;
             z-index: 1;
-            padding-bottom: 40px;
+            padding-bottom: 60px;
             width: 100%;
         }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-card {
-            background: white;
-            border-radius: 25px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-top: -50px;
-            position: relative;
-            z-index: 2;
-        }
-        .section-title {
+        .category-badge {
+            background: var(--accent);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
             font-weight: 700;
-            margin-bottom: 20px;
-            color: #212529;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* ===== INTERACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .btn-action {
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: 0.3s;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-fav {
+            background: #ff4d6d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+        }
+        .btn-share {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn-action:hover { transform: translateY(-3px); opacity: 0.9; color: white; }
+
+        /* ===== CONTENT CARDS ===== */
+        .main-card {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         .section-title::after {
             content: '';
             flex: 1;
-            height: 1px;
-            background: #eee;
+            height: 2px;
+            background: #f0f0f0;
         }
 
-        /* ===== INTERACTION BUTTONS ===== */
-        .action-btn {
-            border-radius: 12px;
-            padding: 12px 25px;
-            font-weight: 600;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-        .btn-favorite {
-            background: #fff0f3;
-            color: #ff4d6d;
-            border: 1px solid #ffccd5;
-        }
-        .btn-favorite:hover {
-            background: #ff4d6d;
-            color: white;
-        }
-
-        /* ===== WEATHER & INFO BOXES ===== */
-        .info-box {
-            background: #f0f7ff;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            height: 100%;
-        }
-        .info-box i {
-            font-size: 24px;
-            color: #0d6efd;
-            margin-bottom: 10px;
-        }
-
-        /* ===== RATING SECTION ===== */
-        .rating-box {
-            background: #fff9e6;
-            border-radius: 15px;
-            padding: 20px;
+        /* ===== INFO BOXES ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
             margin-top: 30px;
         }
+        .info-item {
+            background: #f8fbff;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid #edf2f7;
+            transition: 0.3s;
+        }
+        .info-item:hover { background: white; border-color: var(--primary); transform: translateY(-5px); }
+        .info-item i { font-size: 28px; color: var(--secondary); margin-bottom: 10px; }
+        .info-label { font-size: 13px; color: var(--text-muted); display: block; }
+        .info-value { font-weight: 700; font-size: 16px; color: var(--primary); }
+
+        /* ===== RATING BOX ===== */
+        .rating-card {
+            background: #fffcf2;
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid #ffecb3;
+            text-align: center;
+        }
         .star-rating {
-            color: #ffc107;
-            font-size: 28px;
+            color: var(--accent);
+            font-size: 32px;
+            margin: 15px 0;
             direction: ltr;
-            display: inline-block;
         }
-        .star-rating i {
-            cursor: pointer;
-            transition: 0.2s;
+        .star-rating i { cursor: pointer; transition: 0.2s; }
+        .star-rating i:hover, .star-rating i.active { font-weight: 900; transform: scale(1.2); }
+
+        /* ===== MAP CARD ===== */
+        .map-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
-        .star-rating i:hover, .star-rating i.active {
-            font-weight: 900;
+        .map-frame {
+            border-radius: 15px;
+            overflow: hidden;
+            height: 300px;
         }
 
         footer {
-            background: #212529;
+            background: #011627;
             color: white;
-            padding: 40px 0;
-            margin-top: 60px;
+            padding: 50px 0;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar { grid-template-columns: 1fr 1fr; }
+            .navbar-center { display: none; }
+            .place-hero { height: 400px; }
+            .main-card { padding: 25px; }
+            .action-buttons { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}"><i class="fa-solid fa-map-location-dot me-2"></i> سياحة ذكية</a>
-            <div class="d-flex gap-2">
-                <a href="{% url 'home' %}" class="btn btn-primary btn-sm rounded-pill">
-                    <i class="fa-solid fa-house me-1"></i> الرئيسية
-                </a>
-                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm rounded-pill">
-                    <i class="fa-solid fa-arrow-right me-1"></i> عودة
-                </a>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <!-- اليمين: اللوجو -->
+        <a href="{% url 'home' %}" class="logo-container">
+            <div class="logo-icon"><i class="fa-solid fa-earth-africa"></i></div>
+            <div class="logo-text">سياحة ذكية</div>
+        </a>
+
+        <!-- المنتصف: اسم المستخدم -->
+        <div class="navbar-center">
+            {% if user.is_authenticated %}
+            <div class="user-welcome">
+                <i class="fa-solid fa-circle-user"></i>
+                مرحباً، {{ user.username }}
             </div>
+            {% endif %}
+        </div>
+
+        <!-- اليسار: الروابط -->
+        <div class="nav-links">
+            <a href="{% url 'home' %}" class="btn-nav">
+                <i class="fa-solid fa-house me-1"></i> الرئيسية
+            </a>
+            <a href="javascript:history.back()" class="btn-nav-outline">
+                <i class="fa-solid fa-arrow-right me-1"></i> عودة
+            </a>
         </div>
     </nav>
 
-    <!-- PLACE HEADER -->
-    <div class="place-header">
-        <div class="container header-content">
-            <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
-                <div>
-                    <span class="badge bg-primary mb-2">{{ place.category }}</span>
-                    <h1 class="fw-bold mb-1">{{ place.name }}</h1>
-                    <p class="mb-0 fs-5"><i class="fa-solid fa-location-dot me-1"></i> {{ place.country }} — {{ place.city }}</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <!-- ✅ إصلاح زر المفضلة -->
-                    <a href="{% url 'add_favorite' place.name %}" class="btn btn-favorite action-btn">
-                        <i class="fa-solid fa-heart me-2"></i> أضف للمفضلة
-                    </a>
-                    <button class="btn btn-primary action-btn"><i class="fa-solid fa-share-nodes me-2"></i> مشاركة</button>
-                </div>
+    <!-- Place Hero -->
+    <div class="place-hero">
+        <div class="container hero-content">
+            <span class="category-badge"><i class="fa-solid fa-tag me-1"></i> {{ place.category }}</span>
+            <h1 class="display-4 fw-bold mb-2">{{ place.name }}</h1>
+            <p class="fs-5 opacity-90"><i class="fa-solid fa-location-dot me-2"></i> {{ place.city }}، {{ place.country }}</p>
+            
+            <div class="action-buttons">
+                <a href="{% url 'add_favorite' place.name %}" class="btn-action btn-fav">
+                    <i class="fa-solid fa-heart"></i> أضف للمفضلة
+                </a>
+                <button class="btn-action btn-share">
+                    <i class="fa-solid fa-share-nodes"></i> مشاركة الوجهة
+                </button>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <!-- عرض رسائل النجاح أو الخطأ -->
+        <!-- رسائل التنبيه -->
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
-                    {{ message }}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-4 rounded-4 shadow-sm" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
 
-        <div class="row">
+        <div class="row mt-4">
             <div class="col-lg-8">
-                <!-- MAIN CARD -->
+                <!-- Main Info Card -->
                 <div class="main-card mb-4">
-                    <h3 class="section-title">📖 عن المكان</h3>
-                    <p class="lead text-secondary" style="line-height: 1.8; text-align: justify;">
+                    <h3 class="section-title"><i class="fa-solid fa-circle-info me-2"></i> اكتشف المكان</h3>
+                    <p class="lead text-secondary" style="line-height: 2; text-align: justify; font-size: 17px;">
                         {% if place.semantic_description_ar %}
                             {{ place.semantic_description_ar }}
                         {% else %}
@@ -201,48 +331,40 @@
                         {% endif %}
                     </p>
 
-                    <div class="row g-3 mt-4">
-                        <div class="col-md-4">
-                            <div class="info-box">
-                                <i class="fa-solid fa-star"></i>
-                                <div class="fw-bold">التقييم العام</div>
-                                <div class="text-muted">{{ place.rating }} / 5.0</div>
-                            </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                            <span class="info-label">التقييم العام</span>
+                            <span class="info-value">{{ place.rating }} / 5.0</span>
                         </div>
-                        <div class="col-md-4">
-                            <div class="info-box">
-                                <i class="fa-solid fa-cloud-sun"></i>
-                                <div class="fw-bold">حالة الطقس</div>
-                                <div class="text-muted">
-                                    {% if place.weather %}
-                                        {{ place.weather.temperature }}°C — {{ place.weather.description }}
-                                    {% else %}
-                                        غير متوفر حالياً
-                                    {% endif %}
-                                </div>
-                            </div>
+                        <div class="info-item">
+                            <i class="fa-solid fa-cloud-sun"></i>
+                            <span class="info-label">حالة الطقس</span>
+                            <span class="info-value">
+                                {% if place.weather %}
+                                    {{ place.weather.temperature }}°C
+                                {% else %}
+                                    معتدل
+                                {% endif %}
+                            </span>
                         </div>
-                        <div class="col-md-4">
-                            <div class="info-box">
-                                <i class="fa-solid fa-clock"></i>
-                                <div class="fw-bold">أفضل وقت للزيارة</div>
-                                <div class="text-muted">طوال العام</div>
-                            </div>
+                        <div class="info-item">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span class="info-label">أفضل وقت</span>
+                            <span class="info-value">طوال العام</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- RATING & FEEDBACK -->
+                <!-- Rating Section -->
                 <div class="main-card mb-4">
-                    <h3 class="section-title">⭐ رأيك يهمنا</h3>
-                    <div class="rating-box text-center">
+                    <h3 class="section-title"><i class="fa-solid fa-comment-dots me-2"></i> رأيك يهمنا</h3>
+                    <div class="rating-card">
                         {% if user.is_authenticated %}
-                            <p class="mb-2 fw-bold">كيف تقيم تجربتك في هذا المكان؟</p>
-                            
-                            <!-- ✅ إصلاح نموذج التقييم -->
+                            <p class="fw-bold mb-1">كيف كانت تجربتك في {{ place.name }}؟</p>
                             <form action="{% url 'rate_place' place.id %}" method="POST" id="ratingForm">
                                 {% csrf_token %}
-                                <div class="star-rating mb-3" id="starRating">
+                                <div class="star-rating" id="starRating">
                                     <i class="fa-regular fa-star" data-value="1"></i>
                                     <i class="fa-regular fa-star" data-value="2"></i>
                                     <i class="fa-regular fa-star" data-value="3"></i>
@@ -250,13 +372,14 @@
                                     <i class="fa-regular fa-star" data-value="5"></i>
                                 </div>
                                 <input type="hidden" name="rating" id="ratingValue" value="5">
-                                <textarea name="comment" class="form-control mb-3" rows="3" placeholder="اكتب تعليقك هنا..."></textarea>
-                                <button type="submit" class="btn btn-warning fw-bold px-5">إرسال التقييم</button>
+                                <textarea name="comment" class="form-control mb-3 rounded-4 border-0 bg-light p-3" rows="3" placeholder="اكتب تعليقك هنا..."></textarea>
+                                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">إرسال التقييم</button>
                             </form>
                         {% else %}
-                            <div class="py-3">
-                                <p class="text-muted">يجب عليك تسجيل الدخول لتتمكن من التقييم وإضافة المكان للمفضلة.</p>
-                                <a href="{% url 'login' %}" class="btn btn-primary rounded-pill px-4">تسجيل الدخول الآن</a>
+                            <div class="py-4">
+                                <i class="fa-solid fa-lock fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">سجل دخولك لتتمكن من تقييم هذا المكان وإضافته لمفضلتك.</p>
+                                <a href="{% url 'login' %}" class="btn btn-primary rounded-pill px-4">تسجيل الدخول</a>
                             </div>
                         {% endif %}
                     </div>
@@ -264,16 +387,46 @@
             </div>
 
             <div class="col-lg-4">
-                <!-- MAP -->
+                <!-- Map Card -->
                 {% if place.latitude and place.longitude %}
-                <div class="main-card mb-4">
-                    <h3 class="section-title">🗺️ الموقع</h3>
-                    <div class="rounded-4 overflow-hidden" style="height: 250px;">
+                <div class="map-card">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-map-pin me-2 text-danger"></i> موقع المكان</h5>
+                    <div class="map-frame">
                         <iframe
-                            src="https://www.google.com/maps?q={{ place.latitude }},{{ place.longitude }}&hl=ar&z=13&output=embed"
+                            src="https://www.google.com/maps?q={{ place.latitude }},{{ place.longitude }}&hl=ar&z=14&output=embed"
                             width="100%" height="100%" frameborder="0">
                         </iframe>
                     </div>
+                </div>
+                {% endif %}
+
+                <!-- Similar Places (Real Content-based Filtering) -->
+                {% if similar_places %}
+                <div class="main-card p-3" style="margin-top: 0;">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-warning"></i> أماكن مشابهة</h5>
+                    <p class="small text-muted mb-3">بناءً على اهتمامك بـ {{ place.category }}، قد يعجبك أيضاً:</p>
+                    
+                    {% for s in similar_places %}
+                    <a href="{% url 'place_detail' s.id %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm mb-3 overflow-hidden" style="border-radius: 15px; transition: 0.3s;">
+                            <div class="row g-0">
+                                <div class="col-4">
+                                    <img src="{{ s.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" 
+                                         class="img-fluid h-100" style="object-fit: cover; min-height: 80px;" alt="{{ s.name }}">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1 fw-bold text-dark" style="font-size: 14px;">{{ s.name }}</h6>
+                                        <p class="card-text small text-muted mb-0" style="font-size: 12px;">{{ s.city }}</p>
+                                        <div class="text-warning small" style="font-size: 11px;">
+                                            <i class="fa-solid fa-star"></i> {{ s.rating }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
                 </div>
                 {% endif %}
             </div>
@@ -281,17 +434,14 @@
     </div>
 
     <footer>
-        <div class="container text-center">
-            <p class="mb-2">نظام التوصية السياحي الذكي &copy; 2026</p>
-            <div class="small text-muted">
-                تطوير: فارس النذير & مجتبى أحمد | مشروع تخرج بكلاريوس
-            </div>
+        <div class="container">
+            <p class="mb-1">نظام التوصية السياحي الذكي &copy; 2026</p>
+            <p class="small opacity-50">مشروع تخرج بكلاريوس | تطوير: فارس النذير & مجتبى أحمد</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- ✅ إضافة JavaScript للتحكم بالنجوم -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const stars = document.querySelectorAll('#starRating i');
@@ -302,7 +452,6 @@
                     const value = this.getAttribute('data-value');
                     ratingInput.value = value;
                     
-                    // تحديث شكل النجوم
                     stars.forEach(s => {
                         if (s.getAttribute('data-value') <= value) {
                             s.classList.remove('fa-regular');
