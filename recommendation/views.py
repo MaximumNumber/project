@@ -3,6 +3,8 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from pathlib import Path
@@ -17,13 +19,7 @@ from django.db.models import Q
 from .models import Favorite, UserRating, Place
 from .forms import RegisterForm
 from .utils import get_weather, arabic_query_expand
-from .collaborative_filtering import get_collaborative_recommendations
-
-# ----------------------------
-# مسارات البيانات (للاستخدامات الأخرى إن وجدت)
-# ----------------------------
-APP_DIR = Path(__file__).resolve().parent
-BASE_DIR = APP_DIR.parent
+from .collaborative_filtering import get_svd_recommendations as get_collaborative_recommendations_svd
 
 # ----------------------------
 # كشف اللغة ومعالجة النصوص العربية
@@ -35,12 +31,12 @@ def is_arabic_text(text: str) -> bool:
     return False
 
 def normalize_arabic(text):
-    """تبسيط النص العربي لزيادة مرونة البحث"""
+    """تبسيط النص العربي لزيادة مرونة البحث (إزالة الهمزات، ال التعريف، والتاء المربوطة)"""
     if not text: return ""
     text = text.strip().lower()
     # توحيد الحروف المتشابهة
     text = text.replace("أ", "ا").replace("إ", "ا").replace("آ", "ا").replace("ة", "ه").replace("ى", "ي")
-    # إزالة ال التعريف في بداية الكلمات لزيادة مرونة المطابقة
+    # إزالة ال التعريف في بداية الكلمات
     words = text.split()
     normalized_words = []
     for w in words:
@@ -52,44 +48,66 @@ def normalize_arabic(text):
 # ----------------------------
 # منطق الـ Content-based Recommendation (قاعدة البيانات فقط)
 # ----------------------------
+tfidf_vectorizer = None
+places_tfidf_matrix = None
+place_ids_in_tfidf = []
+
+def initialize_tfidf_model():
+    global tfidf_vectorizer, places_tfidf_matrix, place_ids_in_tfidf
+    places = Place.objects.all()
+    if not places:
+        return
+
+    place_texts = []
+    place_ids_in_tfidf = []
+    for p in places:
+        # دمج جميع النصوص ذات الصلة في سلسلة واحدة
+        full_text = f"{p.name} {p.city} {p.category} {p.semantic_description_ar or ''} {p.semantic_description or ''}"
+        place_texts.append(full_text)
+        place_ids_in_tfidf.append(p.id)
+
+    tfidf_vectorizer = TfidfVectorizer(stop_words='arabic' if is_arabic_text('dummy') else 'english') # افتراض أن الدالة is_arabic_text موجودة
+    places_tfidf_matrix = tfidf_vectorizer.fit_transform(place_texts)
+
+# استدعاء تهيئة النموذج عند بدء تشغيل التطبيق أو عند الحاجة
+# For simplicity, we'll call it here, but in a real app, you might want to call it once on startup
+initialize_tfidf_model()
+
 def get_content_recommendations(query, is_ar=True, top_k=20):
     clean_query = query.strip().lower()
     norm_query = normalize_arabic(clean_query) if is_ar else clean_query
     query_terms = norm_query.split()
     
-    # البحث في قاعدة البيانات فقط (التي قام المستخدم بتنظيفها)
-    query_filter = Q()
-    for term in query_terms:
-        if len(term) > 1:
-            query_filter |= (Q(name__icontains=term) | Q(city__icontains=term) | Q(category__icontains=term))
-            if is_ar:
-                query_filter |= Q(semantic_description_ar__icontains=term)
-    
-    # محاولة إضافية للبحث بالكلمة الأصلية لضمان عدم ضياع النتائج
-    query_filter |= Q(name__icontains=clean_query)
-    
-    places = Place.objects.filter(query_filter).distinct()
-    
+    global tfidf_vectorizer, places_tfidf_matrix, place_ids_in_tfidf
+    if tfidf_vectorizer is None or places_tfidf_matrix is None:
+        initialize_tfidf_model()
+        if tfidf_vectorizer is None or places_tfidf_matrix is None:
+            return [] # لا توجد أماكن لإنشاء نموذج TF-IDF
+
+    # تحويل الاستعلام إلى متجه TF-IDF
+    query_vector = tfidf_vectorizer.transform([query])
+
+    # حساب تشابه جيب التمام بين الاستعلام وجميع الأماكن
+    cosine_similarities = cosine_similarity(query_vector, places_tfidf_matrix).flatten()
+
+    # ربط درجات التشابه بالأماكن
+    place_scores = []
+    for i, place_id in enumerate(place_ids_in_tfidf):
+        place_scores.append({
+            'place_id': place_id,
+            'content_score': cosine_similarities[i] * 100 # تحويل إلى مقياس 0-100
+        })
+
+    # جلب تفاصيل الأماكن
+    place_objects = {p.id: p for p in Place.objects.filter(id__in=place_ids_in_tfidf)}
+
     results = []
-    for p in places:
-        p_name = p.name.lower()
-        p_name_norm = normalize_arabic(p.name) if is_ar else p_name
-        
-        # حساب النسبة المئوية بطريقة مرنة
-        score = 0.0
-        # 1. تطابق تام أو شبه تام في الاسم (100%)
-        if clean_query in p_name or p_name in clean_query or norm_query in p_name_norm:
-            score = 100.0
-        else:
-            # 2. تطابق جزئي بناءً على الكلمات المشتركة في الاسم والوصف
-            p_full_text = f"{p.name} {p.city} {p.category} {p.semantic_description_ar if is_ar else p.semantic_description}".lower()
-            p_full_norm = normalize_arabic(p_full_text) if is_ar else p_full_text
-            
-            matches = sum(1 for term in query_terms if term in p_full_norm)
-            score = (matches / len(query_terms)) * 100 if query_terms else 0
-            
-        results.append({"place": p, "content_score": score})
-            
+    for ps in place_scores:
+        place = place_objects.get(ps['place_id'])
+        if place:
+            results.append({"place": place, "content_score": ps["content_score"]})
+
+    # ترتيب النتائج حسب السكور والتقييم
     results.sort(key=lambda x: (x["content_score"], x["place"].rating), reverse=True)
     return results[:top_k]
 
@@ -108,12 +126,14 @@ def search(request):
     
     collab_scores = {}
     if request.user.is_authenticated:
-        collab_scores = get_collaborative_recommendations(request.user.id)
+        collab_scores = get_collaborative_recommendations_svd(request.user.id)
 
     hybrid_results = []
     for res in content_results:
         place = res["place"]
         c_score = res["content_score"]
+        
+        # دمج التصفية التعاونية (Collaborative Filtering) بنسبة 30%
         raw_coll_score = collab_scores.get(place.id, 0)
         coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score
         
@@ -132,7 +152,10 @@ def search(request):
         })
 
     if not hybrid_results:
-        return render(request, "recommendation/results.html", {"message": "لا توجد نتائج مطابقة في قاعدة البيانات، جرب كلمات أخرى", "query": query})
+        return render(request, "recommendation/results.html", {
+            "message": "لا توجد نتائج مطابقة في قاعدة البيانات، جرب كلمات أخرى", 
+            "query": query
+        })
 
     # ترتيب النتائج حسب السكور النهائي
     hybrid_results.sort(key=lambda x: x["score"], reverse=True)
@@ -145,7 +168,7 @@ def search(request):
     return render(request, "recommendation/results.html", {"results": results, "query": query})
 
 # ----------------------------
-# الدوال الأساسية الأخرى
+# الدوال الأساسية الأخرى (باقي الدوال كما هي)
 # ----------------------------
 def home(request):
     top_places = Place.objects.all().order_by('-rating')[:5]
