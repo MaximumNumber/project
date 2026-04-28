@@ -73,10 +73,17 @@ def initialize_tfidf_model():
 # For simplicity, we'll call it here, but in a real app, you might want to call it once on startup
 initialize_tfidf_model()
 
-def get_content_recommendations(query, is_ar=True, top_k=20):
-    clean_query = query.strip().lower()
-    norm_query = normalize_arabic(clean_query) if is_ar else clean_query
-    query_terms = norm_query.split()
+def get_content_recommendations(query=None, source_place_id=None, is_ar=True, top_k=20):
+    if query:
+        clean_query = query.strip().lower()
+        norm_query = normalize_arabic(clean_query) if is_ar else clean_query
+        query_text = clean_query
+    elif source_place_id:
+        source_place = Place.objects.get(id=source_place_id)
+        query_text = f"{source_place.name} {source_place.city} {source_place.category} {source_place.semantic_description_ar or ''} {source_place.semantic_description or ''}"
+    else:
+        return []
+
     
     global tfidf_vectorizer, places_tfidf_matrix, place_ids_in_tfidf
     if tfidf_vectorizer is None or places_tfidf_matrix is None:
@@ -84,8 +91,8 @@ def get_content_recommendations(query, is_ar=True, top_k=20):
         if tfidf_vectorizer is None or places_tfidf_matrix is None:
             return [] # لا توجد أماكن لإنشاء نموذج TF-IDF
 
-    # تحويل الاستعلام إلى متجه TF-IDF
-    query_vector = tfidf_vectorizer.transform([query])
+    # تحويل الاستعلام أو نص المكان المصدر إلى متجه TF-IDF
+    query_vector = tfidf_vectorizer.transform([query_text])
 
     # حساب تشابه جيب التمام بين الاستعلام وجميع الأماكن
     cosine_similarities = cosine_similarity(query_vector, places_tfidf_matrix).flatten()
@@ -99,7 +106,11 @@ def get_content_recommendations(query, is_ar=True, top_k=20):
         })
 
     # جلب تفاصيل الأماكن
-    place_objects = {p.id: p for p in Place.objects.filter(id__in=place_ids_in_tfidf)}
+    # جلب تفاصيل الأماكن، مع استبعاد المكان المصدر إذا كان موجوداً
+    if source_place_id:
+        place_objects = {p.id: p for p in Place.objects.filter(id__in=place_ids_in_tfidf).exclude(id=source_place_id)}
+    else:
+        place_objects = {p.id: p for p in Place.objects.filter(id__in=place_ids_in_tfidf)}
 
     results = []
     for ps in place_scores:
@@ -114,6 +125,68 @@ def get_content_recommendations(query, is_ar=True, top_k=20):
 # ----------------------------
 # صفحة البحث والنتائج الهجينة
 # ----------------------------
+def get_hybrid_recommendations_for_place(current_place_id, user_id=None, top_k=5):
+    # جلب المكان الحالي
+    current_place = get_object_or_404(Place, id=current_place_id)
+    is_ar = is_arabic_text(current_place.semantic_description_ar or current_place.name)
+
+    # 1. توصيات المحتوى (TF-IDF) بناءً على المكان الحالي
+    content_results = get_content_recommendations(source_place_id=current_place_id, is_ar=is_ar, top_k=top_k*2) # جلب عدد أكبر ثم تصفية
+
+    collab_scores = {}
+    if user_id:
+        # 2. توصيات الترشيح التعاوني (SVD) للمستخدم الحالي
+        collab_scores = get_collaborative_recommendations_svd(user_id, top_k=top_k*2) # جلب عدد أكبر ثم تصفية
+
+    hybrid_results = []
+    for res in content_results:
+        place = res["place"]
+        c_score = res["content_score"]
+        
+        # تحديد الأوزان ديناميكياً بناءً على عدد تقييمات المستخدم
+    content_weight = 0.7 # الوزن الافتراضي للمحتوى
+    collab_weight = 0.3  # الوزن الافتراضي للتعاوني
+
+    if user_id:
+        user_ratings_count = UserRating.objects.filter(user_id=user_id).count()
+        if user_ratings_count < 5: # مستخدم جديد جداً
+            content_weight = 1.0
+            collab_weight = 0.0
+        elif user_ratings_count < 15: # مستخدم جديد
+            content_weight = 0.8
+            collab_weight = 0.2
+        else: # مستخدم لديه خبرة كافية
+            content_weight = 0.5
+            collab_weight = 0.5
+
+    for res in content_results:
+        place = res["place"]
+        c_score = res["content_score"]
+        
+        # دمج التصفية التعاونية (SVD)
+        raw_coll_score = collab_scores.get(place.id, 0)
+        # تحويل تقييم SVD (1-5) إلى مقياس 0-100
+        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score # إذا لم يكن هناك تقييم تعاوني، استخدم درجة المحتوى
+        
+        final_score = (c_score * content_weight) + (coll_score * collab_weight)
+        
+        hybrid_results.append({
+            "place": place,
+            "score": round(final_score, 2),
+        })
+
+    # ترتيب النتائج حسب السكور النهائي
+    hybrid_results.sort(key=lambda x: x["score"], reverse=True)
+    
+    # إرجاع أفضل k مكان
+    final_recommendations = []
+    for item in hybrid_results:
+        final_recommendations.append(item["place"])
+        if len(final_recommendations) >= top_k:
+            break
+            
+    return final_recommendations
+
 def search(request):
     query = request.GET.get("query", "").strip()
     if not query:
@@ -215,13 +288,19 @@ def logout_view(request):
 
 def place_detail(request, place_id):
     place = get_object_or_404(Place, id=place_id)
-    similar_places = Place.objects.filter(
-        Q(category=place.category) | Q(city=place.city)
-    ).exclude(id=place.id).order_by('-rating')[:2]
+    user_id = request.user.id if request.user.is_authenticated else None
+    user_rating = None
+    if request.user.is_authenticated:
+        try:
+            user_rating = UserRating.objects.get(user=request.user, place=place)
+        except UserRating.DoesNotExist:
+            pass
+    similar_places = get_hybrid_recommendations_for_place(place_id, user_id=user_id, top_k=5)
     
     context = {
         "place": place,
         "similar_places": similar_places,
+        "user_rating": user_rating,
     }
     return render(request, "recommendation/place_detail.html", context)
 

@@ -53,7 +53,7 @@ def get_svd_recommendations(user_id, n_components=20, top_k=10):
         user_rated_places = matrix.loc[user_id]
         user_rated_places = user_rated_places[user_rated_places.notna()].index.tolist()
 
-        unrated_places_predictions = user_predicted_ratings.drop(user_rated_places)
+        unrated_places_predictions = user_predicted_ratings.drop(user_rated_places, errors='ignore') # إضافة errors='ignore' للتعامل مع الأماكن غير الموجودة
 
         # ترتيب التوصيات تنازلياً
         sorted_recs = unrated_places_predictions.sort_values(ascending=False)

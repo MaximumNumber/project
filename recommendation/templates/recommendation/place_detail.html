@@ -30,7 +30,7 @@
             color: var(--text-dark);
         }
 
-        /* ===== NAVBAR (Same as Home/Results) ===== */
+        /* ===== NAVBAR ===== */
         .navbar{
             background:var(--white);
             display:grid;
@@ -241,6 +241,97 @@
             height: 300px;
         }
 
+        /* ===== RECOMMENDATIONS (NEW FULL WIDTH DESIGN) ===== */
+        .recommendations-section {
+            margin-top: 50px;
+            padding-bottom: 50px;
+        }
+        .rec-card-main {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+            border: 1px solid #eef2f7;
+        }
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .rec-item-new {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #f0f0f0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .rec-item-new:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 35px rgba(2, 62, 138, 0.12);
+            border-color: var(--secondary);
+        }
+        .rec-img-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+        .rec-img-new {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+        .rec-item-new:hover .rec-img-new {
+            transform: scale(1.1);
+        }
+        .rec-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            backdrop-filter: blur(5px);
+        }
+        .rec-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .rec-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        .rec-location {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        .rec-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+        }
+        .rec-rating {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
         footer {
             background: #011627;
             color: white;
@@ -255,6 +346,7 @@
             .place-hero { height: 400px; }
             .main-card { padding: 25px; }
             .action-buttons { flex-direction: column; }
+            .rec-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -262,13 +354,11 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <!-- اليمين: اللوجو -->
         <a href="{% url 'home' %}" class="logo-container">
             <div class="logo-icon"><i class="fa-solid fa-earth-africa"></i></div>
             <div class="logo-text">سياحة ذكية</div>
         </a>
 
-        <!-- المنتصف: اسم المستخدم -->
         <div class="navbar-center">
             {% if user.is_authenticated %}
             <div class="user-welcome">
@@ -278,7 +368,6 @@
             {% endif %}
         </div>
 
-        <!-- اليسار: الروابط -->
         <div class="nav-links">
             <a href="{% url 'home' %}" class="btn-nav">
                 <i class="fa-solid fa-house me-1"></i> الرئيسية
@@ -399,38 +488,42 @@
                     </div>
                 </div>
                 {% endif %}
+            </div>
+        </div>
 
-                <!-- Similar Places (Real Content-based Filtering) -->
-                {% if similar_places %}
-                <div class="main-card p-3" style="margin-top: 0;">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-warning"></i> أماكن مشابهة</h5>
-                    <p class="small text-muted mb-3">بناءً على اهتمامك بـ {{ place.category }}، قد يعجبك أيضاً:</p>
-                    
+        <!-- Recommendations Section (FULL WIDTH UNDER CONTENT) -->
+        {% if similar_places %}
+        <div class="recommendations-section">
+            <div class="rec-card-main">
+                <h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles me-2 text-warning"></i> التوصيات</h3>
+                <p class="text-muted mb-4">بناءً على اهتمامك بـ {{ place.category }} وتحليلاتنا الذكية، نقترح عليك هذه الوجهات:</p>
+                
+                <div class="rec-grid">
                     {% for s in similar_places %}
                     <a href="{% url 'place_detail' s.id %}" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm mb-3 overflow-hidden" style="border-radius: 15px; transition: 0.3s;">
-                            <div class="row g-0">
-                                <div class="col-4">
-                                    <img src="{{ s.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" 
-                                         class="img-fluid h-100" style="object-fit: cover; min-height: 80px;" alt="{{ s.name }}">
-                                </div>
-                                <div class="col-8">
-                                    <div class="card-body p-2">
-                                        <h6 class="card-title mb-1 fw-bold text-dark" style="font-size: 14px;">{{ s.name }}</h6>
-                                        <p class="card-text small text-muted mb-0" style="font-size: 12px;">{{ s.city }}</p>
-                                        <div class="text-warning small" style="font-size: 11px;">
-                                            <i class="fa-solid fa-star"></i> {{ s.rating }}
-                                        </div>
+                        <div class="rec-item-new">
+                            <div class="rec-img-container">
+                                <img src="{{ s.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" 
+                                     class="rec-img-new" alt="{{ s.name }}">
+                                <span class="rec-badge">{{ s.category }}</span>
+                            </div>
+                            <div class="rec-content">
+                                <h5 class="rec-title">{{ s.name }}</h5>
+                                <p class="rec-location"><i class="fa-solid fa-location-dot me-1"></i> {{ s.city }}، {{ s.country }}</p>
+                                <div class="rec-footer">
+                                    <div class="rec-rating">
+                                        <i class="fa-solid fa-star"></i> {{ s.rating }}
                                     </div>
+                                    <span class="text-primary fw-bold small">عرض التفاصيل <i class="fa-solid fa-chevron-left ms-1"></i></span>
                                 </div>
                             </div>
                         </div>
                     </a>
                     {% endfor %}
                 </div>
-                {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 
     <footer>
