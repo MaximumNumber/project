@@ -1,0 +1,302 @@
+user_id,user_type,place_id,place_name,rating
+1,History Lover,13,Karnak Temple,5.0
+1,History Lover,32,Carthage Ruins,4.2
+1,History Lover,4,Hegra (Madain Saleh),4.7
+1,History Lover,55,Carthage Archaeological Park,4.4
+1,History Lover,14,Valley of the Kings,4.9
+1,History Lover,27,Jerash Ruins,4.7
+1,History Lover,24,Petra,5.0
+1,History Lover,46,Petra Monastery (Ad Deir),5.0
+1,History Lover,23,Casbah of Algiers,3.2
+1,History Lover,50,Roman Theater,4.2
+2,History Lover,27,Jerash Ruins,4.6
+2,History Lover,14,Valley of the Kings,4.9
+2,History Lover,4,Hegra (Madain Saleh),5.0
+2,History Lover,46,Petra Monastery (Ad Deir),4.6
+2,History Lover,24,Petra,5.0
+2,History Lover,13,Karnak Temple,5.0
+2,History Lover,22,Essaouira Beach,3.4
+2,History Lover,50,Roman Theater,3.7
+2,History Lover,43,Chefchaouen Blue Streets,4.8
+2,History Lover,7,King Abdulaziz Center,4.4
+3,History Lover,55,Carthage Archaeological Park,4.7
+3,History Lover,24,Petra,5.0
+3,History Lover,27,Jerash Ruins,4.8
+3,History Lover,4,Hegra (Madain Saleh),4.3
+3,History Lover,14,Valley of the Kings,4.7
+3,History Lover,32,Carthage Ruins,5.0
+3,History Lover,46,Petra Monastery (Ad Deir),5.0
+3,History Lover,29,Madaba Mosaics,3.0
+3,History Lover,42,Fes Tannery,3.4
+3,History Lover,17,Corniche,3.2
+4,History Lover,46,Petra Monastery (Ad Deir),4.9
+4,History Lover,32,Carthage Ruins,4.7
+4,History Lover,24,Petra,5.0
+4,History Lover,27,Jerash Ruins,4.9
+4,History Lover,13,Karnak Temple,5.0
+4,History Lover,55,Carthage Archaeological Park,5.0
+4,History Lover,14,Valley of the Kings,5.0
+4,History Lover,15,Abu Simbel Temples,4.3
+4,History Lover,52,Bardo Museum,3.5
+5,History Lover,4,Hegra (Madain Saleh),5.0
+5,History Lover,32,Carthage Ruins,5.0
+5,History Lover,13,Karnak Temple,5.0
+5,History Lover,27,Jerash Ruins,5.0
+5,History Lover,24,Petra,5.0
+5,History Lover,46,Petra Monastery (Ad Deir),4.4
+5,History Lover,55,Carthage Archaeological Park,4.5
+5,History Lover,14,Valley of the Kings,4.7
+5,History Lover,18,Hassan II Mosque,4.8
+5,History Lover,50,Roman Theater,3.7
+6,History Lover,14,Valley of the Kings,5.0
+6,History Lover,32,Carthage Ruins,4.0
+6,History Lover,55,Carthage Archaeological Park,4.7
+6,History Lover,13,Karnak Temple,4.9
+6,History Lover,27,Jerash Ruins,4.4
+6,History Lover,46,Petra Monastery (Ad Deir),5.0
+6,History Lover,24,Petra,4.9
+6,History Lover,4,Hegra (Madain Saleh),5.0
+6,History Lover,16,Philae Temple,3.9
+6,History Lover,50,Roman Theater,3.2
+6,History Lover,52,Bardo Museum,4.0
+6,History Lover,42,Fes Tannery,3.7
+6,History Lover,5,Corniche Beach,4.1
+7,History Lover,55,Carthage Archaeological Park,4.0
+7,History Lover,27,Jerash Ruins,4.8
+7,History Lover,4,Hegra (Madain Saleh),5.0
+7,History Lover,24,Petra,4.8
+7,History Lover,14,Valley of the Kings,5.0
+7,History Lover,46,Petra Monastery (Ad Deir),5.0
+7,History Lover,11,Egyptian Museum,3.8
+7,History Lover,39,Aswan Botanical Gardens,2.8
+8,History Lover,14,Valley of the Kings,4.7
+8,History Lover,24,Petra,5.0
+8,History Lover,4,Hegra (Madain Saleh),5.0
+8,History Lover,55,Carthage Archaeological Park,3.8
+8,History Lover,32,Carthage Ruins,4.1
+8,History Lover,13,Karnak Temple,5.0
+8,History Lover,35,Giza Pyramids (duplicate placeholder),4.8
+8,History Lover,28,Amman Citadel,3.9
+8,History Lover,7,King Abdulaziz Center,2.9
+9,History Lover,27,Jerash Ruins,5.0
+9,History Lover,32,Carthage Ruins,4.5
+9,History Lover,13,Karnak Temple,4.7
+9,History Lover,24,Petra,5.0
+9,History Lover,46,Petra Monastery (Ad Deir),4.9
+9,History Lover,4,Hegra (Madain Saleh),4.8
+9,History Lover,14,Valley of the Kings,5.0
+9,History Lover,37,Luxor Temple,4.6
+9,History Lover,40,Moroccan Sahara Erg,3.8
+10,History Lover,14,Valley of the Kings,5.0
+10,History Lover,46,Petra Monastery (Ad Deir),5.0
+10,History Lover,13,Karnak Temple,4.9
+10,History Lover,55,Carthage Archaeological Park,4.5
+10,History Lover,32,Carthage Ruins,4.8
+10,History Lover,27,Jerash Ruins,4.3
+10,History Lover,4,Hegra (Madain Saleh),4.8
+10,History Lover,24,Petra,4.7
+10,History Lover,19,Jemaa el-Fnaa,4.9
+10,History Lover,17,Corniche,3.3
+10,History Lover,40,Moroccan Sahara Erg,4.0
+11,Nature Explorer,4,Hegra (Madain Saleh),4.3
+11,Nature Explorer,48,Mount Nebo,4.1
+11,Nature Explorer,12,Khan el-Khalili,4.9
+11,Nature Explorer,31,Sidi Bou Said,4.3
+11,Nature Explorer,7,King Abdulaziz Center,4.1
+12,Nature Explorer,29,Madaba Mosaics,2.8
+12,Nature Explorer,42,Fes Tannery,4.9
+12,Nature Explorer,35,Giza Pyramids (duplicate placeholder),4.5
+12,Nature Explorer,20,Majorelle Garden,4.4
+12,Nature Explorer,47,Aqaba Coral Reefs,5.0
+13,Nature Explorer,43,Chefchaouen Blue Streets,4.4
+13,Nature Explorer,46,Petra Monastery (Ad Deir),4.9
+13,Nature Explorer,36,Marsa Matruh,3.5
+13,Nature Explorer,22,Essaouira Beach,3.5
+14,Nature Explorer,34,Djerba Beaches,4.2
+14,Nature Explorer,29,Madaba Mosaics,4.3
+15,Nature Explorer,32,Carthage Ruins,5.0
+15,Nature Explorer,50,Roman Theater,3.6
+15,Nature Explorer,16,Philae Temple,4.3
+16,Nature Explorer,19,Jemaa el-Fnaa,4.5
+16,Nature Explorer,45,Hiking in Atlas Mountains,3.6
+16,Nature Explorer,7,King Abdulaziz Center,3.9
+16,Nature Explorer,32,Carthage Ruins,4.3
+16,Nature Explorer,16,Philae Temple,5.0
+17,Nature Explorer,44,Meknes Heritage,4.2
+17,Nature Explorer,31,Sidi Bou Said,4.1
+17,Nature Explorer,16,Philae Temple,4.1
+17,Nature Explorer,36,Marsa Matruh,4.7
+18,Nature Explorer,41,Rabat Kasbah,4.0
+18,Nature Explorer,2,National Museum,3.2
+18,Nature Explorer,16,Philae Temple,3.4
+19,Nature Explorer,5,Corniche Beach,3.6
+19,Nature Explorer,10,Pyramids of Giza,4.7
+19,Nature Explorer,52,Bardo Museum,3.9
+19,Nature Explorer,15,Abu Simbel Temples,4.3
+20,Nature Explorer,35,Giza Pyramids (duplicate placeholder),4.0
+20,Nature Explorer,13,Karnak Temple,4.1
+21,Culture Seeker,27,Jerash Ruins,5.0
+21,Culture Seeker,51,Sidi Bou Said (alternate),4.9
+22,Culture Seeker,54,El Jem Amphitheatre (duplicate),4.4
+22,Culture Seeker,48,Mount Nebo,4.2
+22,Culture Seeker,6,Floating Mosque,3.2
+22,Culture Seeker,25,Wadi Rum,5.0
+23,Culture Seeker,1,Masmak Fortress,4.6
+23,Culture Seeker,30,Great Mosque of Kairouan,4.9
+23,Culture Seeker,22,Essaouira Beach,4.4
+23,Culture Seeker,32,Carthage Ruins,3.0
+24,Culture Seeker,31,Sidi Bou Said,3.3
+24,Culture Seeker,28,Amman Citadel,4.2
+25,Culture Seeker,47,Aqaba Coral Reefs,5.0
+25,Culture Seeker,38,Salah El-Din Citadel,3.7
+25,Culture Seeker,45,Hiking in Atlas Mountains,3.1
+25,Culture Seeker,16,Philae Temple,3.8
+25,Culture Seeker,26,Dead Sea,3.9
+26,Culture Seeker,31,Sidi Bou Said,3.2
+26,Culture Seeker,27,Jerash Ruins,4.0
+27,Culture Seeker,33,El Djem Amphitheatre,3.8
+27,Culture Seeker,49,Aqaba Beach,2.9
+28,Culture Seeker,8,Edge of the World,5.0
+28,Culture Seeker,39,Aswan Botanical Gardens,3.6
+28,Culture Seeker,31,Sidi Bou Said,3.9
+28,Culture Seeker,18,Hassan II Mosque,5.0
+29,Culture Seeker,5,Corniche Beach,2.6
+29,Culture Seeker,48,Mount Nebo,3.9
+29,Culture Seeker,28,Amman Citadel,3.5
+29,Culture Seeker,40,Moroccan Sahara Erg,3.9
+30,Culture Seeker,24,Petra,5.0
+30,Culture Seeker,17,Corniche,3.4
+30,Culture Seeker,1,Masmak Fortress,3.9
+31,Adventure Seeker,13,Karnak Temple,4.9
+31,Adventure Seeker,23,Casbah of Algiers,3.4
+32,Adventure Seeker,46,Petra Monastery (Ad Deir),5.0
+32,Adventure Seeker,7,King Abdulaziz Center,3.2
+32,Adventure Seeker,33,El Djem Amphitheatre,4.5
+33,Adventure Seeker,16,Philae Temple,3.1
+33,Adventure Seeker,30,Great Mosque of Kairouan,4.7
+33,Adventure Seeker,34,Djerba Beaches,4.1
+33,Adventure Seeker,3,AlUla Old Town,4.4
+34,Adventure Seeker,10,Pyramids of Giza,4.8
+34,Adventure Seeker,23,Casbah of Algiers,3.1
+34,Adventure Seeker,24,Petra,5.0
+35,Adventure Seeker,13,Karnak Temple,4.4
+35,Adventure Seeker,18,Hassan II Mosque,4.6
+36,Adventure Seeker,44,Meknes Heritage,3.1
+36,Adventure Seeker,3,AlUla Old Town,5.0
+36,Adventure Seeker,15,Abu Simbel Temples,3.8
+36,Adventure Seeker,39,Aswan Botanical Gardens,3.5
+37,Adventure Seeker,12,Khan el-Khalili,3.1
+37,Adventure Seeker,38,Salah El-Din Citadel,4.8
+37,Adventure Seeker,49,Aqaba Beach,3.1
+37,Adventure Seeker,16,Philae Temple,3.6
+38,Adventure Seeker,11,Egyptian Museum,3.9
+38,Adventure Seeker,9,Al-Balad (Historic District),3.9
+38,Adventure Seeker,36,Marsa Matruh,4.0
+38,Adventure Seeker,46,Petra Monastery (Ad Deir),4.7
+39,Adventure Seeker,24,Petra,5.0
+39,Adventure Seeker,40,Moroccan Sahara Erg,4.2
+39,Adventure Seeker,43,Chefchaouen Blue Streets,3.9
+40,Adventure Seeker,38,Salah El-Din Citadel,5.0
+40,Adventure Seeker,26,Dead Sea,4.2
+40,Adventure Seeker,55,Carthage Archaeological Park,3.7
+40,Adventure Seeker,17,Corniche,3.7
+41,Mixed,12,Khan el-Khalili,4.1
+41,Mixed,16,Philae Temple,5.0
+41,Mixed,9,Al-Balad (Historic District),4.1
+41,Mixed,31,Sidi Bou Said,4.8
+41,Mixed,45,Hiking in Atlas Mountains,5.0
+41,Mixed,42,Fes Tannery,4.3
+41,Mixed,25,Wadi Rum,5.0
+41,Mixed,8,Edge of the World,5.0
+41,Mixed,30,Great Mosque of Kairouan,4.5
+41,Mixed,53,Sousse Medina,4.2
+41,Mixed,11,Egyptian Museum,4.3
+42,Mixed,31,Sidi Bou Said,5.0
+42,Mixed,29,Madaba Mosaics,4.3
+42,Mixed,30,Great Mosque of Kairouan,4.5
+42,Mixed,48,Mount Nebo,4.7
+42,Mixed,2,National Museum,4.1
+42,Mixed,25,Wadi Rum,5.0
+42,Mixed,6,Floating Mosque,4.2
+42,Mixed,9,Al-Balad (Historic District),4.8
+42,Mixed,26,Dead Sea,4.4
+42,Mixed,10,Pyramids of Giza,5.0
+43,Mixed,42,Fes Tannery,4.5
+43,Mixed,51,Sidi Bou Said (alternate),4.3
+43,Mixed,39,Aswan Botanical Gardens,3.8
+43,Mixed,45,Hiking in Atlas Mountains,4.7
+43,Mixed,4,Hegra (Madain Saleh),4.7
+43,Mixed,1,Masmak Fortress,3.7
+43,Mixed,26,Dead Sea,4.8
+43,Mixed,29,Madaba Mosaics,4.6
+43,Mixed,6,Floating Mosque,3.9
+43,Mixed,43,Chefchaouen Blue Streets,4.9
+44,Mixed,43,Chefchaouen Blue Streets,5.0
+44,Mixed,52,Bardo Museum,4.9
+44,Mixed,19,Jemaa el-Fnaa,4.5
+44,Mixed,11,Egyptian Museum,4.4
+44,Mixed,48,Mount Nebo,4.2
+44,Mixed,24,Petra,4.9
+44,Mixed,22,Essaouira Beach,3.8
+45,Mixed,10,Pyramids of Giza,4.4
+45,Mixed,51,Sidi Bou Said (alternate),4.8
+45,Mixed,8,Edge of the World,4.6
+45,Mixed,49,Aqaba Beach,5.0
+45,Mixed,38,Salah El-Din Citadel,5.0
+45,Mixed,33,El Djem Amphitheatre,4.9
+45,Mixed,5,Corniche Beach,4.4
+45,Mixed,2,National Museum,4.0
+45,Mixed,9,Al-Balad (Historic District),4.8
+46,Mixed,33,El Djem Amphitheatre,4.6
+46,Mixed,19,Jemaa el-Fnaa,4.7
+46,Mixed,11,Egyptian Museum,4.8
+46,Mixed,18,Hassan II Mosque,4.4
+46,Mixed,48,Mount Nebo,4.0
+46,Mixed,40,Moroccan Sahara Erg,4.7
+46,Mixed,54,El Jem Amphitheatre (duplicate),4.6
+46,Mixed,45,Hiking in Atlas Mountains,5.0
+46,Mixed,2,National Museum,4.4
+46,Mixed,15,Abu Simbel Temples,5.0
+46,Mixed,8,Edge of the World,4.9
+47,Mixed,9,Al-Balad (Historic District),5.0
+47,Mixed,46,Petra Monastery (Ad Deir),4.1
+47,Mixed,38,Salah El-Din Citadel,4.5
+47,Mixed,54,El Jem Amphitheatre (duplicate),4.8
+47,Mixed,35,Giza Pyramids (duplicate placeholder),5.0
+47,Mixed,31,Sidi Bou Said,4.9
+47,Mixed,15,Abu Simbel Temples,5.0
+47,Mixed,43,Chefchaouen Blue Streets,4.4
+47,Mixed,44,Meknes Heritage,4.5
+47,Mixed,11,Egyptian Museum,5.0
+47,Mixed,8,Edge of the World,5.0
+48,Mixed,43,Chefchaouen Blue Streets,5.0
+48,Mixed,48,Mount Nebo,4.0
+48,Mixed,29,Madaba Mosaics,4.3
+48,Mixed,36,Marsa Matruh,4.9
+48,Mixed,34,Djerba Beaches,4.4
+48,Mixed,41,Rabat Kasbah,4.4
+48,Mixed,31,Sidi Bou Said,4.2
+48,Mixed,4,Hegra (Madain Saleh),5.0
+48,Mixed,1,Masmak Fortress,4.3
+48,Mixed,22,Essaouira Beach,4.8
+48,Mixed,26,Dead Sea,5.0
+48,Mixed,27,Jerash Ruins,5.0
+49,Mixed,23,Casbah of Algiers,4.5
+49,Mixed,31,Sidi Bou Said,4.2
+49,Mixed,8,Edge of the World,4.8
+49,Mixed,10,Pyramids of Giza,4.9
+49,Mixed,14,Valley of the Kings,5.0
+49,Mixed,37,Luxor Temple,5.0
+49,Mixed,50,Roman Theater,4.0
+50,Mixed,29,Madaba Mosaics,4.2
+50,Mixed,2,National Museum,4.2
+50,Mixed,22,Essaouira Beach,4.2
+50,Mixed,1,Masmak Fortress,4.7
+50,Mixed,5,Corniche Beach,4.1
+50,Mixed,26,Dead Sea,4.8
+50,Mixed,21,Medina of Fes,5.0
+50,Mixed,44,Meknes Heritage,4.2
+50,Mixed,11,Egyptian Museum,4.8
+50,Mixed,28,Amman Citadel,4.6
+50,Mixed,43,Chefchaouen Blue Streets,5.0
+50,Mixed,7,King Abdulaziz Center,4.3

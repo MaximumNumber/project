@@ -3,7 +3,7 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics.pairwise import cosine_similarity
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
@@ -22,8 +22,62 @@ from .utils import get_weather, arabic_query_expand
 from .collaborative_filtering import get_svd_recommendations as get_collaborative_recommendations_svd
 
 # ----------------------------
-# كشف اللغة ومعالجة النصوص العربية
-# ----------------------------
+
+ARABIC_TO_ENGLISH_DICT = {
+    "الاهرامات": "pyramids",
+    "اهرامات": "pyramids",
+    "هرم": "pyramid",
+    "متحف": "museum",
+    "متاحف": "museums",
+    "تاريخي": "historical",
+    "تاريخ": "history",
+    "شاطئ": "beach",
+    "شواطئ": "beaches",
+    "بحر": "sea",
+    "جبل": "mountain",
+    "جبال": "mountains",
+    "حديقة": "park",
+    "حدائق": "parks",
+    "مطعم": "restaurant",
+    "مطاعم": "restaurants",
+    "فندق": "hotel",
+    "فنادق": "hotels",
+    "تسوق": "shopping",
+    "مول": "mall",
+    "طبيعة": "nature",
+    "غوص": "diving",
+    "سفاري": "safari",
+    "عائلة": "family",
+    "اطفال": "kids",
+    "رخيص": "budget",
+    "غالي": "luxury",
+    "صيف": "summer",
+    "شتاء": "winter",
+    "اثار": "monuments",
+    "قلعة": "castle",
+    "برج": "tower",
+    "مسجد": "mosque",
+    "كنيسة": "church",
+    "معبد": "temple",
+}
+
+def translate_arabic_query(query):
+    """ترجمة الكلمات العربية الشائعة في الاستعلام إلى الإنجليزية لزيادة فرص التطابق"""
+    if not query: return ""
+    words = query.split()
+    translated_words = []
+    for w in words:
+        translated_words.append(w)
+        clean_w = w
+        if w.startswith("ال") and len(w) > 3:
+            clean_w = w[2:]
+        
+        if w in ARABIC_TO_ENGLISH_DICT:
+            translated_words.append(ARABIC_TO_ENGLISH_DICT[w])
+        elif clean_w in ARABIC_TO_ENGLISH_DICT:
+            translated_words.append(ARABIC_TO_ENGLISH_DICT[clean_w])
+            
+    return " ".join(translated_words)
 def is_arabic_text(text: str) -> bool:
     if not text: return False
     for ch in text:
@@ -33,80 +87,139 @@ def is_arabic_text(text: str) -> bool:
 def normalize_arabic(text):
     """تبسيط النص العربي لزيادة مرونة البحث (إزالة الهمزات، ال التعريف، والتاء المربوطة)"""
     if not text: return ""
-    text = text.strip().lower()
-    # توحيد الحروف المتشابهة
+    text = text.strip()
     text = text.replace("أ", "ا").replace("إ", "ا").replace("آ", "ا").replace("ة", "ه").replace("ى", "ي")
-    # إزالة ال التعريف في بداية الكلمات
+    
     words = text.split()
     normalized_words = []
     for w in words:
+
+
         if w.startswith("ال") and len(w) > 3:
             normalized_words.append(w[2:])
-        normalized_words.append(w)
-    return " ".join(set(normalized_words))
+        else:
+            normalized_words.append(w)
+    return " ".join(normalized_words)
 
 # ----------------------------
-# منطق الـ Content-based Recommendation (قاعدة البيانات فقط)
+
+# ----------------------------
+ARABIC_STOP_WORDS = [
+    "في", "من", "إلى", "على", "عن", "مع", "هذا", "هذه", "ذلك", "تلك",
+    "التي", "الذي", "الذين", "اللواتي", "هو", "هي", "هم", "هن", "أنا",
+    "أنت", "أنتم", "نحن", "كان", "كانت", "يكون", "تكون", "قد", "لقد",
+    "ما", "لا", "لم", "لن", "إن", "أن", "كما", "أو", "و", "ثم", "حتى",
+    "بعد", "قبل", "عند", "حين", "إذا", "لو", "كل", "بعض", "غير", "بين",
+    "وهو", "وهي", "وهم", "فهو", "فهي", "فهم", "منه", "منها", "منهم",
+    "عليه", "عليها", "عليهم", "به", "بها", "بهم", "له", "لها", "لهم",
+    "فيه", "فيها", "فيهم", "إنه", "إنها", "إنهم", "أنه", "أنها", "أنهم",
+    "كانوا", "يكونوا", "قال", "قالت", "يقول", "تقول", "جاء", "جاءت",
+]
+
+# ----------------------------
+
 # ----------------------------
 tfidf_vectorizer = None
 places_tfidf_matrix = None
 place_ids_in_tfidf = []
 
 def initialize_tfidf_model():
+    """
+    بناء نموذج TF-IDF من جميع الأماكن في قاعدة البيانات.
+    يُستدعى عند الحاجة الأولى فقط (lazy)، أو عند إضافة أماكن جديدة.
+
+    للإنتاج: استدع هذه الدالة مرة واحدة من AppConfig.ready() في apps.py:
+
+        # recommendation/apps.py
+        from django.apps import AppConfig
+
+        class RecommendationConfig(AppConfig):
+            name = 'recommendation'
+
+            def ready(self):
+                # تأكد أن هذا لا يعمل أثناء التهجيرات أو الاختبارات
+                import sys
+                if 'migrate' not in sys.argv and 'test' not in sys.argv:
+                    from .views import initialize_tfidf_model
+                    initialize_tfidf_model()
+    """
     global tfidf_vectorizer, places_tfidf_matrix, place_ids_in_tfidf
+
     places = Place.objects.all()
-    if not places:
+    if not places.exists():
         return
 
     place_texts = []
     place_ids_in_tfidf = []
     for p in places:
-        # دمج جميع النصوص ذات الصلة في سلسلة واحدة
-        full_text = f"{p.name} {p.city} {p.category} {p.semantic_description_ar or ''} {p.semantic_description or ''}"
-        place_texts.append(full_text)
+       
+        full_text = f"{p.name} {p.city} {p.country} {p.category} {p.interests} {p.features} {p.semantic_description_ar or ''} {p.semantic_description or ''}"
+        
+        normalized_text = normalize_arabic(full_text) if is_arabic_text(full_text) else full_text.lower()
+        
+        if p.semantic_description_ar:
+            translated_desc = translate_arabic_query(normalize_arabic(p.semantic_description_ar))
+            normalized_text += f" {translated_desc}"
+            
+        place_texts.append(normalized_text)
         place_ids_in_tfidf.append(p.id)
 
-    tfidf_vectorizer = TfidfVectorizer(stop_words='arabic' if is_arabic_text('dummy') else 'english') # افتراض أن الدالة is_arabic_text موجودة
+    tfidf_vectorizer = TfidfVectorizer(
+    stop_words=list(ARABIC_STOP_WORDS) + list(ENGLISH_STOP_WORDS)
+)
     places_tfidf_matrix = tfidf_vectorizer.fit_transform(place_texts)
 
-# استدعاء تهيئة النموذج عند بدء تشغيل التطبيق أو عند الحاجة
-# For simplicity, we'll call it here, but in a real app, you might want to call it once on startup
-initialize_tfidf_model()
+
 
 def get_content_recommendations(query=None, source_place_id=None, is_ar=True, top_k=20):
     if query:
-        clean_query = query.strip().lower()
-        norm_query = normalize_arabic(clean_query) if is_ar else clean_query
-        query_text = clean_query
+        clean_query = query.strip()
+        if is_ar:
+            # تطبيع الاستعلام العربي ثم ترجمة الكلمات الشائعة فيه إلى الإنجليزية
+            normalized_q = normalize_arabic(clean_query)
+            query_text = translate_arabic_query(normalized_q)
+        else:
+            query_text = clean_query.lower()
     elif source_place_id:
-        source_place = Place.objects.get(id=source_place_id)
-        query_text = f"{source_place.name} {source_place.city} {source_place.category} {source_place.semantic_description_ar or ''} {source_place.semantic_description or ''}"
+        try:
+            source_place = Place.objects.get(id=source_place_id)
+            raw_text = f"{source_place.name} {source_place.city} {source_place.country} {source_place.category} {source_place.interests} {source_place.features} {source_place.semantic_description_ar or ''} {source_place.semantic_description or ''}"
+            
+            if is_ar:
+                normalized_q = normalize_arabic(raw_text)
+                query_text = translate_arabic_query(normalized_q)
+            else:
+                query_text = raw_text.lower()
+        except Place.DoesNotExist:
+            return []
     else:
         return []
 
-    
     global tfidf_vectorizer, places_tfidf_matrix, place_ids_in_tfidf
+
     if tfidf_vectorizer is None or places_tfidf_matrix is None:
         initialize_tfidf_model()
         if tfidf_vectorizer is None or places_tfidf_matrix is None:
-            return [] # لا توجد أماكن لإنشاء نموذج TF-IDF
+            return []
 
-    # تحويل الاستعلام أو نص المكان المصدر إلى متجه TF-IDF
     query_vector = tfidf_vectorizer.transform([query_text])
 
-    # حساب تشابه جيب التمام بين الاستعلام وجميع الأماكن
     cosine_similarities = cosine_similarity(query_vector, places_tfidf_matrix).flatten()
 
-    # ربط درجات التشابه بالأماكن
+    valid_indices = np.where(cosine_similarities > 0)[0]
+    if len(valid_indices) == 0 and query:
+        return [] 
+
     place_scores = []
-    for i, place_id in enumerate(place_ids_in_tfidf):
+    for i in valid_indices:
+        place_id = place_ids_in_tfidf[i]
+        optimistic_score = cosine_similarities[i] * 100
+
         place_scores.append({
             'place_id': place_id,
-            'content_score': cosine_similarities[i] * 100 # تحويل إلى مقياس 0-100
+            'content_score': optimistic_score
         })
 
-    # جلب تفاصيل الأماكن
-    # جلب تفاصيل الأماكن، مع استبعاد المكان المصدر إذا كان موجوداً
     if source_place_id:
         place_objects = {p.id: p for p in Place.objects.filter(id__in=place_ids_in_tfidf).exclude(id=source_place_id)}
     else:
@@ -118,36 +231,82 @@ def get_content_recommendations(query=None, source_place_id=None, is_ar=True, to
         if place:
             results.append({"place": place, "content_score": ps["content_score"]})
 
-    # ترتيب النتائج حسب السكور والتقييم
     results.sort(key=lambda x: (x["content_score"], x["place"].rating), reverse=True)
     return results[:top_k]
+
 
 # ----------------------------
 # صفحة البحث والنتائج الهجينة
 # ----------------------------
 def get_hybrid_recommendations_for_place(current_place_id, user_id=None, top_k=5):
-    # جلب المكان الحالي
     current_place = get_object_or_404(Place, id=current_place_id)
     is_ar = is_arabic_text(current_place.semantic_description_ar or current_place.name)
 
-    # 1. توصيات المحتوى (TF-IDF) بناءً على المكان الحالي
-    content_results = get_content_recommendations(source_place_id=current_place_id, is_ar=is_ar, top_k=top_k*2) # جلب عدد أكبر ثم تصفية
+    content_results = get_content_recommendations(source_place_id=current_place_id, is_ar=is_ar, top_k=top_k * 2)
 
     collab_scores = {}
     if user_id:
-        # 2. توصيات الترشيح التعاوني (SVD) للمستخدم الحالي
-        collab_scores = get_collaborative_recommendations_svd(user_id, top_k=top_k*2) # جلب عدد أكبر ثم تصفية
+        collab_scores = get_collaborative_recommendations_svd(user_id, top_k=top_k * 2)
+
+    content_weight = 0.7  # الوزن الافتراضي للمحتوى
+    collab_weight = 0.3   # الوزن الافتراضي للتعاوني
+
+    if user_id:
+        user_ratings_count = UserRating.objects.filter(user_id=user_id).count()
+        if user_ratings_count < 5:    # مستخدم جديد جداً
+            content_weight = 1.0
+            collab_weight = 0.0
+        elif user_ratings_count < 15: # مستخدم جديد
+            content_weight = 0.8
+            collab_weight = 0.2
+        else:                          # مستخدم لديه خبرة كافية
+            content_weight = 0.5
+            collab_weight = 0.5
 
     hybrid_results = []
     for res in content_results:
         place = res["place"]
         c_score = res["content_score"]
-        
-        # تحديد الأوزان ديناميكياً بناءً على عدد تقييمات المستخدم
+
+        # دمج التصفية التعاونية (SVD)
+        raw_coll_score = collab_scores.get(place.id, 0)
+        # تحويل تقييم SVD (1-5) إلى مقياس 0-100
+        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score
+
+        final_score = (c_score * content_weight) + (coll_score * collab_weight)
+
+        hybrid_results.append({
+            "place": place,
+            "score": round(final_score, 2),
+        })
+
+    hybrid_results.sort(key=lambda x: x["score"], reverse=True)
+
+    final_recommendations = []
+    for item in hybrid_results:
+        final_recommendations.append(item["place"])
+        if len(final_recommendations) >= top_k:
+            break
+
+    return final_recommendations
+
+
+def search(request):
+    query = request.GET.get("query", "").strip()
+    if not query:
+        return render(request, "recommendation/results.html", {"message": "يرجى كتابة كلمة للبحث"})
+
+    is_ar = is_arabic_text(query)
+
+    content_results = get_content_recommendations(query, is_ar=is_ar)
+
+    collab_scores = {}
+    
     content_weight = 0.7 # الوزن الافتراضي للمحتوى
     collab_weight = 0.3  # الوزن الافتراضي للتعاوني
 
-    if user_id:
+    if request.user.is_authenticated:
+        user_id = request.user.id
         user_ratings_count = UserRating.objects.filter(user_id=user_id).count()
         if user_ratings_count < 5: # مستخدم جديد جداً
             content_weight = 1.0
@@ -159,59 +318,20 @@ def get_hybrid_recommendations_for_place(current_place_id, user_id=None, top_k=5
             content_weight = 0.5
             collab_weight = 0.5
 
-    for res in content_results:
-        place = res["place"]
-        c_score = res["content_score"]
-        
-        # دمج التصفية التعاونية (SVD)
-        raw_coll_score = collab_scores.get(place.id, 0)
-        # تحويل تقييم SVD (1-5) إلى مقياس 0-100
-        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score # إذا لم يكن هناك تقييم تعاوني، استخدم درجة المحتوى
-        
-        final_score = (c_score * content_weight) + (coll_score * collab_weight)
-        
-        hybrid_results.append({
-            "place": place,
-            "score": round(final_score, 2),
-        })
-
-    # ترتيب النتائج حسب السكور النهائي
-    hybrid_results.sort(key=lambda x: x["score"], reverse=True)
-    
-    # إرجاع أفضل k مكان
-    final_recommendations = []
-    for item in hybrid_results:
-        final_recommendations.append(item["place"])
-        if len(final_recommendations) >= top_k:
-            break
-            
-    return final_recommendations
-
-def search(request):
-    query = request.GET.get("query", "").strip()
-    if not query:
-        return render(request, "recommendation/results.html", {"message": "يرجى كتابة كلمة للبحث"})
-
-    is_ar = is_arabic_text(query)
-    
-    # جلب نتائج قاعدة البيانات فقط (تم إلغاء ملفات pkl لضمان نظافة البيانات)
-    content_results = get_content_recommendations(query, is_ar=is_ar)
-    
-    collab_scores = {}
-    if request.user.is_authenticated:
-        collab_scores = get_collaborative_recommendations_svd(request.user.id)
+        collab_scores = get_collaborative_recommendations_svd(user_id)
 
     hybrid_results = []
     for res in content_results:
         place = res["place"]
         c_score = res["content_score"]
         
-        # دمج التصفية التعاونية (Collaborative Filtering) بنسبة 30%
+        # دمج التصفية التعاونية (Collaborative Filtering)
         raw_coll_score = collab_scores.get(place.id, 0)
-        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score
+        # تحويل تقييم SVD (1-5) إلى مقياس 0-100
+        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score # إذا لم يكن هناك تقييم تعاوني، استخدم درجة المحتوى
         
-        final_score = (c_score * 0.7) + (coll_score * 0.3)
-        
+        final_score = (c_score * content_weight) + (coll_score * collab_weight)
+
         hybrid_results.append({
             "name": place.name,
             "city": place.city,
@@ -226,12 +346,13 @@ def search(request):
 
     if not hybrid_results:
         return render(request, "recommendation/results.html", {
-            "message": "لا توجد نتائج مطابقة في قاعدة البيانات، جرب كلمات أخرى", 
+            "message": "لا توجد نتائج مطابقة في قاعدة البيانات، جرب كلمات أخرى",
             "query": query
         })
 
     # ترتيب النتائج حسب السكور النهائي
     hybrid_results.sort(key=lambda x: x["score"], reverse=True)
+
     results = hybrid_results[:10]
 
     for item in results:
@@ -240,8 +361,9 @@ def search(request):
 
     return render(request, "recommendation/results.html", {"results": results, "query": query})
 
+
 # ----------------------------
-# الدوال الأساسية الأخرى (باقي الدوال كما هي)
+# الدوال الأساسية الأخرى
 # ----------------------------
 def home(request):
     top_places = Place.objects.all().order_by('-rating')[:5]
@@ -257,6 +379,7 @@ def register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data["password"])
             user.save()
+            messages.success(request, "تم إنشاء الحساب بنجاح!")
             return redirect("login")
     else:
         form = RegisterForm()
@@ -296,7 +419,7 @@ def place_detail(request, place_id):
         except UserRating.DoesNotExist:
             pass
     similar_places = get_hybrid_recommendations_for_place(place_id, user_id=user_id, top_k=5)
-    
+
     context = {
         "place": place,
         "similar_places": similar_places,
@@ -307,18 +430,19 @@ def place_detail(request, place_id):
 def profile_view(request):
     user = request.user
     favorites = Favorite.objects.filter(user=user).select_related("place")
+    ratings = UserRating.objects.filter(user=user).select_related("place")
     context = {
-        "username": user.username,
-        "email": user.email,
+        "user": user,                  
         "favorites": favorites,
+        "ratings": ratings,            
     }
-    return render(request, "recommendation/profile.html", context)
+    return render(request, "recommendation/profile.html", context) 
 
 def add_favorite(request, destination):
     if not request.user.is_authenticated:
         messages.error(request, "يجب تسجيل الدخول أولاً")
         return redirect("login")
-    
+
     place = Place.objects.filter(Q(name__iexact=destination) | Q(name__icontains=destination)).first()
     if not place:
         messages.error(request, "المكان غير موجود")
@@ -330,7 +454,7 @@ def add_favorite(request, destination):
     else:
         Favorite.objects.create(user=request.user, place=place)
         messages.success(request, "تمت إضافة المكان إلى المفضلة بنجاح!")
-    
+
     return redirect("place_detail", place_id=place.id)
 
 def remove_favorite(request, place_id):
@@ -343,13 +467,25 @@ def remove_favorite(request, place_id):
 def rate_place(request, place_id):
     if request.method == "POST":
         rating_value = request.POST.get("rating")
+        if not rating_value:
+            return redirect("place_detail", place_id=place_id)
+
         place = get_object_or_404(Place, id=place_id)
+
         UserRating.objects.update_or_create(
             user=request.user,
             place=place,
             defaults={'rating': float(rating_value)}
         )
-        messages.success(request, "تم تسجيل تقييمك بنجاح!")
+
+        from django.db.models import Avg
+        avg_rating = UserRating.objects.filter(place=place).aggregate(Avg('rating'))['rating__avg']
+
+        if avg_rating:
+            place.rating = round(avg_rating, 1)
+            place.save()
+
+        messages.success(request, "تم تسجيل تقييمك وتحديث تقييم المكان بنجاح!")
         return redirect("place_detail", place_id=place_id)
     return redirect("home")
 

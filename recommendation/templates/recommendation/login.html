@@ -1,317 +1,452 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تسجيل الدخول – نظام التوصية السياحي</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-body{
-    margin:0;
-    font-family:"Cairo",sans-serif;
-    height:100vh;
-    background:linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-/* ===== LOGIN BOX ===== */
-.login-box{
-    background:rgba(255,255,255,.12);
-    backdrop-filter:blur(10px);
-    width:360px;
-    padding:40px 30px;
-    border-radius:22px;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    color:white;
-}
-
-.login-box h2{
-    margin-bottom:25px;
-    font-size:28px;
-    font-weight:700;
-}
-
-/* ===== INPUTS ===== */
-.login-box input{
-    width:100%;
-    padding:12px 14px;
-    margin:12px 0;
-    border-radius:12px;
-    border:none;
-    font-size:16px;
-    outline:none;
-}
-
-.login-box input::placeholder{
-    color:#666;
-}
-
-/* ===== BUTTON ===== */
-.login-box button{
-    width:100%;
-    margin-top:18px;
-    padding:12px;
-    border:none;
-    border-radius:25px;
-    background:#f5d66a;
-    font-size:18px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.3s;
-}
-
-.login-box button:hover{
-    background:#ffe066;
-    transform:translateY(-2px);
-}
-
-/* ===== LINKS ===== */
-.login-box p{
-    margin-top:20px;
-    font-size:15px;
-}
-
-.login-box a{
-    color:#f5d66a;
-    font-weight:600;
-    text-decoration:none;
-}
-
-.login-box a:hover{
-    text-decoration:underline;
-}
-
-/* ===== ERROR ===== */
-.error{
-    margin-top:14px;
-    color:#ffb3b3;
-    font-size:14px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="login-box">
-    <h2>تسجيل الدخول</h2>
-
-    <form method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
-
-        <input type="text" name="username" placeholder="اسم المستخدم" required>
-        <input type="password" name="password" placeholder="كلمة المرور" required>
-
-        <button type="submit">دخول</button>
-
-        {% if error %}
-        <div class="error">{{ error }}</div>
-        {% endif %}
-    </form>
-
-    <p>ليس لديك حساب؟ <a href="{% url 'register' %}">إنشاء حساب</a></p>
-</div>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول – نظام التوصية السياحي</title>
+    <title>تسجيل الدخول – سياحة ذكية</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --ink:        #0F1117;
+            --ink-soft:   #2D3142;
+            --surface:    #F7F6F2;
+            --card:       #FFFFFF;
+            --accent:     #1A6B5A;
+            --accent-lt:  #E6F4F0;
+            --accent-2:   #C97D2E;
+            --muted:      #7D8597;
+            --border:     #E6E4DC;
+            --danger:     #C0392B;
+            --danger-lt:  #FDF0EE;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0;
-            font-family: "Cairo", sans-serif;
-            height: 100vh;
-            background: linear-gradient(rgba(13, 110, 253, 0.8), rgba(0, 0, 0, 0.7)),
-            url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") center/cover no-repeat;
+            font-family: "Tajawal", sans-serif;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--ink);
+        }
+
+        /* ══ LEFT PANEL (visual) ══ */
+        .visual-panel {
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        .visual-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=80")
+                center/cover no-repeat;
+        }
+        .visual-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                160deg,
+                rgba(15,17,23,.75) 0%,
+                rgba(26,107,90,.55) 60%,
+                rgba(15,17,23,.85) 100%
+            );
+        }
+        .visual-grid {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background-image:
+                linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 44px 48px;
+        }
+        .v-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .v-brand-dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px rgba(26,107,90,.8);
+        }
+        .v-brand-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: .3px;
+        }
+        .v-copy { padding-bottom: 8px; }
+        .v-copy h1 {
+            font-size: 40px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+        .v-copy h1 em {
+            font-style: normal;
+            color: #6ECDB5;
+        }
+        .v-copy p {
+            font-size: 15px;
+            color: rgba(255,255,255,.5);
+            line-height: 1.7;
+            max-width: 340px;
+        }
+        .v-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 40px;
+        }
+        .v-stat-val {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            font-family: "IBM Plex Mono", monospace;
+            display: block;
+        }
+        .v-stat-lbl {
+            font-size: 12px;
+            color: rgba(255,255,255,.4);
+            margin-top: 2px;
+        }
+        .v-divider {
+            width: 1px;
+            background: rgba(255,255,255,.12);
+            align-self: stretch;
+        }
+
+        /* ══ RIGHT PANEL (form) ══ */
+        .form-panel {
+            background: var(--surface);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 48px 40px;
+            min-height: 100vh;
+            overflow-y: auto;
         }
-
-        /* ===== LOGIN CARD ===== */
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
+        .form-box {
             width: 100%;
-            max-width: 420px;
-            padding: 45px 35px;
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.3);
+            max-width: 400px;
         }
 
-        .brand-logo {
-            font-size: 40px;
-            color: #0d6efd;
-            margin-bottom: 15px;
+        /* header */
+        .form-header { margin-bottom: 36px; }
+        .form-header h2 {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--ink);
+            letter-spacing: -.5px;
+            margin-bottom: 6px;
+        }
+        .form-header p {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
         }
 
-        .login-card h2 {
-            font-weight: 700;
-            color: #212529;
-            margin-bottom: 10px;
-        }
-
-        .login-card p.subtitle {
-            color: #6c757d;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
-
-        /* ===== FORM CONTROLS ===== */
-        .form-floating {
-            margin-bottom: 15px;
-        }
-        .form-control {
+        /* alert */
+        .msg-alert {
+            background: var(--danger-lt);
+            color: var(--danger);
+            border: 1px solid rgba(192,57,43,.15);
             border-radius: 12px;
-            border: 1px solid #dee2e6;
-            padding-right: 45px !important; /* Space for icon */
-        }
-        .form-control:focus {
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-            border-color: #0d6efd;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .input-group-text {
-            background: none;
-            border: none;
+        /* fields */
+        .field-wrap {
+            margin-bottom: 16px;
+        }
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            margin-bottom: 7px;
+            display: block;
+            letter-spacing: .3px;
+        }
+        .field-inner {
+            position: relative;
+        }
+        .field-icon {
             position: absolute;
-            right: 15px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
-            z-index: 10;
-            color: #adb5bd;
+            color: var(--muted);
+            font-size: 14px;
+            pointer-events: none;
         }
-
-        /* ===== BUTTON ===== */
-        .btn-login {
+        .field-inner input {
             width: 100%;
-            padding: 12px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 18px;
-            margin-top: 10px;
-            transition: 0.3s;
-            background: #0d6efd;
-            border: none;
-        }
-        .btn-login:hover {
-            background: #0b5ed7;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
-        }
-
-        /* ===== LINKS ===== */
-        .footer-links {
-            margin-top: 25px;
+            height: 50px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+            font-family: "Tajawal", sans-serif;
             font-size: 14px;
-            color: #6c757d;
+            color: var(--ink);
+            padding: 0 44px 0 16px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
         }
-        .footer-links a {
-            color: #0d6efd;
-            text-decoration: none;
-            font-weight: 600;
+        .field-inner input::placeholder { color: #B8B5AC; }
+        .field-inner input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(26,107,90,.1);
         }
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
+        .field-inner input:focus + .field-icon,
+        .field-inner input:not(:placeholder-shown) + .field-icon { color: var(--accent); }
 
-        /* ===== ERROR MESSAGE ===== */
-        .error-alert {
-            background: #fff5f5;
-            color: #e03131;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 20px;
-            border: 1px solid #ffc9c9;
-        }
-
-        .back-home {
+        /* password toggle */
+        .toggle-pw {
             position: absolute;
-            top: 30px;
-            right: 30px;
-            color: white;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 14px;
+            line-height: 1;
+            transition: color .2s;
+        }
+        .toggle-pw:hover { color: var(--accent); }
+
+        /* forgot password */
+        .forgot-row {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: -6px;
+            margin-bottom: 20px;
+        }
+        .forgot-row a {
+            font-size: 12px;
+            color: var(--accent);
             text-decoration: none;
             font-weight: 600;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 20px;
-            border-radius: 50px;
-            backdrop-filter: blur(5px);
-            transition: 0.3s;
         }
-        .back-home:hover {
-            background: rgba(255,255,255,0.3);
-            color: white;
+        .forgot-row a:hover { text-decoration: underline; }
+
+        /* submit */
+        .btn-submit {
+            width: 100%;
+            height: 52px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: .2px;
+        }
+        .btn-submit:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(26,107,90,.3);
+        }
+        .btn-submit:active { transform: translateY(0); }
+
+        /* divider */
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .or-divider span {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* register link */
+        .register-link {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .register-link a {
+            color: var(--accent);
+            font-weight: 700;
+            text-decoration: none;
+            margin-right: 4px;
+        }
+        .register-link a:hover { text-decoration: underline; }
+
+        /* ══ ANIMATIONS ══ */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fu  { animation: fadeUp .45s ease both; }
+        .fu1 { animation-delay: .06s; }
+        .fu2 { animation-delay: .12s; }
+        .fu3 { animation-delay: .18s; }
+        .fu4 { animation-delay: .24s; }
+        .fu5 { animation-delay: .30s; }
+
+        /* ══ RESPONSIVE ══ */
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .visual-panel { display: none; }
+            .form-panel { padding: 40px 24px; }
         }
     </style>
 </head>
-
 <body>
 
-    <a href="/" class="back-home"><i class="fa-solid fa-house me-2"></i> العودة للرئيسية</a>
-
-    <div class="login-card">
-        <div class="brand-logo">
-            <i class="fa-solid fa-map-location-dot"></i>
+<!-- ══ VISUAL PANEL ══ -->
+<div class="visual-panel">
+    <div class="visual-bg"></div>
+    <div class="visual-grid"></div>
+    <div class="visual-content">
+        <a href="/" class="v-brand">
+            <span class="v-brand-dot"></span>
+            <span class="v-brand-name">سياحة ذكية</span>
+        </a>
+        <div class="v-copy">
+            <h1>مرحباً بعودتك<br>إلى عالم <em>السفر</em></h1>
+            <p>سجّل دخولك واستمتع بتوصيات سياحية مخصصة تعتمد على الذكاء الاصطناعي لتناسب اهتماماتك.</p>
+            <div class="v-stats">
+                <div class="v-stat">
+                    <span class="v-stat-val">TF-IDF</span>
+                    <span class="v-stat-lbl">تحليل المحتوى</span>
+                </div>
+                <div class="v-divider"></div>
+                <div class="v-stat">
+                    <span class="v-stat-val">SVD</span>
+                    <span class="v-stat-lbl">التصفية التعاونية</span>
+                </div>
+                <div class="v-divider"></div>
+                <div class="v-stat">
+                    <span class="v-stat-val">Hybrid</span>
+                    <span class="v-stat-lbl">نموذج هجين</span>
+                </div>
+            </div>
         </div>
-        <h2>مرحباً بك مجدداً</h2>
-        <p class="subtitle">سجل دخولك لاستكشاف أفضل الوجهات السياحية</p>
+    </div>
+</div>
 
-        {% if error %}
-        <div class="error-alert">
-            <i class="fa-solid fa-circle-exclamation me-2"></i> {{ error }}
+<!-- ══ FORM PANEL ══ -->
+<div class="form-panel">
+    <div class="form-box">
+
+        <div class="form-header fu fu1">
+            <h2>تسجيل الدخول</h2>
+            <p>أدخل بياناتك للوصول إلى حسابك ومتابعة رحلتك السياحية.</p>
+        </div>
+
+        {% if message %}
+        <div class="msg-alert fu">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ message }}</span>
         </div>
         {% endif %}
 
-        <form method="POST" action="{% url 'login' %}">
+        <form action="{% url 'login' %}" method="POST" novalidate>
             {% csrf_token %}
 
-            <div class="position-relative mb-3">
-                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                <input type="text" name="username" class="form-control form-control-lg" placeholder="اسم المستخدم" required>
-            </div>
-
-            <div class="position-relative mb-4">
-                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                <input type="password" name="password" class="form-control form-control-lg" placeholder="كلمة المرور" required>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="remember">
-                    <label class="form-check-label small" for="remember">تذكرني</label>
+            <!-- Username -->
+            <div class="field-wrap fu fu2">
+                <label class="field-label" for="username">اسم المستخدم</label>
+                <div class="field-inner">
+                    <input type="text" id="username" name="username"
+                           placeholder="أدخل اسم المستخدم" required autocomplete="username">
+                    <i class="fa-solid fa-user field-icon"></i>
                 </div>
-                <a href="#" class="small text-decoration-none">نسيت كلمة المرور؟</a>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-login">دخول</button>
+            <!-- Password -->
+            <div class="field-wrap fu fu3">
+                <label class="field-label" for="password">كلمة المرور</label>
+                <div class="field-inner">
+                    <input type="password" id="password" name="password"
+                           placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                    <i class="fa-solid fa-lock field-icon"></i>
+                    <button type="button" class="toggle-pw" onclick="togglePw()" tabindex="-1" aria-label="إظهار/إخفاء كلمة المرور">
+                        <i class="fa-solid fa-eye" id="pw-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="forgot-row fu fu3">
+                <a href="#">نسيت كلمة المرور؟</a>
+            </div>
+
+            <button type="submit" class="btn-submit fu fu4">
+                تسجيل الدخول
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
         </form>
 
-        <div class="footer-links">
-            ليس لديك حساب؟ <a href="{% url 'register' %}">إنشاء حساب جديد</a>
+        <div class="register-link fu fu5">
+            ليس لديك حساب؟
+            <a href="{% url 'register' %}">إنشاء حساب جديد</a>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Password visibility toggle
+function togglePw() {
+    const inp = document.getElementById('password');
+    const eye = document.getElementById('pw-eye');
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        eye.className = 'fa-solid fa-eye-slash';
+    } else {
+        inp.type = 'password';
+        eye.className = 'fa-solid fa-eye';
+    }
+}
+</script>
 </body>
 </html>

@@ -2,10 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 
 class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput())
-    full_name = forms.CharField(required=True)
+    password = forms.CharField(widget=forms.PasswordInput(), label="كلمة المرور")
 
     class Meta:
         model = User
-        fields = ["username", "full_name", "email", "password"]
-
+        fields = ["username", "email", "password"]

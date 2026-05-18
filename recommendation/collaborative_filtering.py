@@ -1,76 +1,83 @@
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import TruncatedSVD
-from sklearn.preprocessing import StandardScaler
 from .models import UserRating, Place
 
+# ----------------------------------------------------------------------------
+# دالة بناء مصفوفة المستخدم-العنصر (User-Item Matrix) مع Mean Centering
+# ----------------------------------------------------------------------------
 def build_user_item_matrix_svd():
     """
     بناء مصفوفة المستخدمين والأماكن بناءً على التقييمات الموجودة في قاعدة البيانات.
-    تستخدم NaN للقيم المفقودة لتسهيل معالجة SVD.
+    تطبق Mean Centering (طرح متوسط تقييمات المستخدم) لمعالجة مشكلة الندرة.
     """
     ratings = UserRating.objects.all().values('user_id', 'place_id', 'rating')
-    if not ratings:
-        return pd.DataFrame()
+    if not ratings: return pd.DataFrame()
 
     df = pd.DataFrame(list(ratings))
-    # pivot لإنشاء مصفوفة: الصفوف هي المستخدمين، والأعمدة هي الأماكن
-    # نستخدم NaN للقيم المفقودة هنا
     matrix = df.pivot(index='user_id', columns='place_id', values='rating')
-    return matrix
 
-def get_svd_recommendations(user_id, n_components=20, top_k=10):
+    # تطبيق Mean Centering:
+    # 1. حساب متوسط تقييمات كل مستخدم
+    user_means = matrix.mean(axis=1)
+    # 2. طرح المتوسط من التقييمات الموجودة (القيم غير الفارغة)
+    matrix_centered = matrix.subtract(user_means, axis=0)
+    # 3. ملء القيم المفقودة (NaN) بالصفر بعد طرح المتوسط
+    matrix_filled = matrix_centered.fillna(0)
+
+    return matrix_filled, user_means, matrix.index.tolist(), matrix.columns.tolist()
+
+# ----------------------------------------------------------------------------
+# دالة الحصول على التوصيات باستخدام SVD (Singular Value Decomposition)
+# ----------------------------------------------------------------------------
+def get_svd_recommendations(user_id, top_k=10):
     """
-    حساب التوصيات باستخدام Truncated SVD.
+    حساب التوصيات بناءً على SVD للمستخدم المحدد.
+    تستخدم Mean Centering وتتعامل مع المستخدمين الجدد.
     """
-    matrix = build_user_item_matrix_svd()
-
-    if matrix.empty or user_id not in matrix.index:
-        return {}
-
     try:
-        # ملء القيم المفقودة بالمتوسط لكل مستخدم قبل SVD
-        # أو يمكن استخدام 0 إذا كانت التقييمات تبدأ من 1
-        # هنا سنستخدم 0 لتبسيط المثال، ولكن المتوسط قد يكون أفضل في بعض الحالات
-        # matrix_filled = matrix.fillna(matrix.mean(axis=0))
-        matrix_filled = matrix.fillna(0) # ملء NaN بالصفر
+        matrix_filled, user_means, user_ids_list, place_ids_list = build_user_item_matrix_svd()
 
-        # تطبيق Truncated SVD
-        # n_components هو عدد الميزات المخفية (latent features)
-        svd = TruncatedSVD(n_components=n_components, random_state=42)
+        # إذا كانت المصفوفة فارغة أو المستخدم ليس لديه تقييمات
+        if matrix_filled.empty or user_id not in user_ids_list:
+            # للمستخدمين الجدد أو الذين ليس لديهم تقييمات، نعود لتوصيات المحتوى
+            # أو يمكن هنا استدعاء دالة توصية عامة (مثل الأكثر تقييماً)
+            return {}
+
+        # تطبيق TruncatedSVD
+        # n_components: عدد الميزات المخفية. يمكن تعديلها لتحسين الدقة/الأداء.
+        # قيمة 20-50 عادة ما تكون جيدة.
+        svd = TruncatedSVD(n_components=min(50, matrix_filled.shape[1] - 1))
         matrix_svd = svd.fit_transform(matrix_filled)
 
-        # إعادة بناء المصفوفة الأصلية من SVD لتقدير التقييمات المفقودة
-        # هذه هي المصفوفة التي تحتوي على التقييمات المتوقعة
-        predicted_ratings = pd.DataFrame(svd.inverse_transform(matrix_svd), 
-                                         columns=matrix.columns, 
-                                         index=matrix.index)
+        # إعادة بناء المصفوفة الأصلية لتقدير التقييمات المفقودة
+        # (إضافة المتوسط مرة أخرى للحصول على التقييمات المتوقعة الأصلية)
+        predicted_ratings_centered = pd.DataFrame(svd.inverse_transform(matrix_svd), 
+                                                  columns=place_ids_list, 
+                                                  index=user_ids_list)
+        
+        # إضافة متوسط المستخدم مرة أخرى للحصول على التقييمات المتوقعة الأصلية
+        predicted_ratings = predicted_ratings_centered.add(user_means, axis=0)
 
         # جلب التقييمات المتوقعة للمستخدم الحالي
         user_predicted_ratings = predicted_ratings.loc[user_id]
 
-        # إزالة الأماكن التي قيمها المستخدم بالفعل
-        user_rated_places = matrix.loc[user_id]
-        user_rated_places = user_rated_places[user_rated_places.notna()].index.tolist()
+        # استبعاد الأماكن التي قيمها المستخدم بالفعل
+        user_rated_places = UserRating.objects.filter(user_id=user_id).values_list('place_id', flat=True)
+        unrated_places_predictions = user_predicted_ratings.drop(list(user_rated_places), errors='ignore')
 
-        unrated_places_predictions = user_predicted_ratings.drop(user_rated_places, errors='ignore') # إضافة errors='ignore' للتعامل مع الأماكن غير الموجودة
+        # تطبيع القيم المتوقعة لتكون بين 1 و 5
+        min_rating, max_rating = 1.0, 5.0
+        unrated_places_predictions = unrated_places_predictions.apply(lambda x: max(min_rating, min(max_rating, x)))
 
-        # ترتيب التوصيات تنازلياً
+        # ترتيب الأماكن تنازلياً حسب التقييم المتوقع
         sorted_recs = unrated_places_predictions.sort_values(ascending=False)
 
-        # تحويل التقييمات المتوقعة إلى مقياس من 0-100 أو 0-5 إذا لزم الأمر
-        # هنا سنعيدها إلى مقياس 0-5 ليتناسب مع الكود الهجين الحالي
-        # القيم المتوقعة من SVD قد تكون سالبة أو خارج نطاق 1-5، لذا نحتاج لتطبيعها
-        # أبسط طريقة هي قص القيم وتطبيعها
-        max_rating = 5.0 # افتراض أن أقصى تقييم هو 5
-        min_rating = 1.0 # افتراض أن أدنى تقييم هو 1
-
-        # قص القيم لتكون ضمن النطاق المتوقع
-        sorted_recs = sorted_recs.apply(lambda x: max(min_rating, min(max_rating, x)))
-
-        # إرجاع أفضل k توصيات كقاموس
+        # إرجاع أفضل k توصية كقاموس (place_id: predicted_rating)
         return sorted_recs.head(top_k).to_dict()
 
     except Exception as e:
+        # معالجة أخطاء محددة لسهولة التصحيح
         print(f"Error in SVD collaborative filtering: {e}")
+        # في حالة وجود خطأ، يمكن إرجاع توصيات عامة أو لا شيء
         return {}

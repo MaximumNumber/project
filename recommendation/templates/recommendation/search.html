@@ -3,369 +3,551 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>البحث السياحي | Tourism Recommender</title>
+  <title>البحث السياحي | سياحة ذكية</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
   <style>
-    :root{
-      --primary:#023e8a;
-      --secondary:#0077b6;
-      --accent:#ffb703;
-      --bg:#f8f9fa;
-      --white:#ffffff;
+    /* ══ DESIGN TOKENS (same as place_detail) ══ */
+    :root {
+      --ink:       #0F1117;
+      --ink-soft:  #2D3142;
+      --surface:   #F7F6F2;
+      --card:      #FFFFFF;
+      --accent:    #1A6B5A;
+      --accent-lt: #E6F4F0;
+      --accent-2:  #C97D2E;
+      --muted:     #7D8597;
+      --border:    #E6E4DC;
+      --danger:    #C0392B;
     }
 
-    body{
-      margin:0;
-      font-family:'Cairo',sans-serif;
-      background:var(--bg);
-      color:#333;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Tajawal", sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
     }
 
-    /* ===== Navbar & Logo ===== */
-    .navbar{
-      background:var(--white);
-      display:grid;
+    /* ══ NAVBAR (identical to place_detail) ══ */
+    .navbar {
+      background: var(--ink);
+      display: grid;
       grid-template-columns: 1fr auto 1fr;
-      align-items:center;
-      padding:15px 5%;
-      box-shadow:0 2px 15px rgba(0,0,0,.05);
-      position:sticky;
-      top:0;
-      z-index:1000;
-    }
-    .user-welcome {
-      text-align: center;
-      font-weight: 600;
-      color: var(--secondary);
-      font-size: 16px;
-      background: #eef6fc;
-      padding: 5px 20px;
-      border-radius: 30px;
-      display: flex;
       align-items: center;
-      gap: 8px;
+      padding: 0 5%;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .nav-links {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-    .logo-container {
+    .logo-link {
       display: flex;
       align-items: center;
       gap: 10px;
       text-decoration: none;
     }
-    .logo-icon {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+    .logo-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(26,107,90,.8);
+    }
+    .logo-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .3px;
+    }
+    .navbar-center {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 4px 10px rgba(2, 62, 138, 0.3);
     }
-    .logo-text {
-      font-weight: 700;
-      font-size: 22px;
-      color: var(--primary);
-      letter-spacing: -0.5px;
+    .user-pill {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.75);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .nav-links a{
-      margin:0 15px;
-      text-decoration:none;
-      color:#555;
-      font-weight:600;
-      transition: 0.3s;
+    .user-pill i { color: var(--accent); }
+    .nav-links {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
     }
-    .nav-links a:hover{ color:var(--primary); }
-    .nav-links .btn-login {
-      background: var(--primary);
-      color: white;
-      padding: 8px 20px;
-      border-radius: 20px;
+    .btn-nav {
+      height: 36px;
+      padding: 0 18px;
+      border-radius: 10px;
+      font-family: "Tajawal", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: .2s;
     }
-    .nav-links .btn-login:hover { color: white; opacity: 0.9; }
+    .btn-nav-solid {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .btn-nav-solid:hover { background: #155a4b; color: #fff; }
+    .btn-nav-ghost {
+      background: transparent;
+      color: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .btn-nav-ghost:hover { border-color: rgba(255,255,255,.35); color: #fff; }
 
-    /* ===== Hero ===== */
-    .hero{
-      background: linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),
-                  url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop");
-      background-size:cover;
-      background-position:center;
-      padding:100px 20px;
-      text-align:center;
-      color:#fff;
-    }
-    .hero h1{
-      font-size:42px;
-      margin-bottom:15px;
-      font-weight: 700;
-    }
-    .hero p { font-size: 18px; opacity: 0.9; }
-
-    /* ===== Main Layout (Simplified) ===== */
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    /* ===== Search Box (Modernized) ===== */
-    .search-section {
-      margin-top: -80px;
+    /* ══ HERO ══ */
+    .hero {
+      height: 460px;
       position: relative;
-      z-index: 10;
+      background: url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop") center/cover no-repeat;
+      display: flex;
+      align-items: flex-end;
     }
-    .search-box{
-      background:var(--white);
-      border-radius:20px;
-      padding:40px;
-      box-shadow:0 15px 35px rgba(0,0,0,.1);
-      text-align: center;
+    .hero-grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 1;
     }
-    .search-box h2{
-      margin-top:0;
-      color:var(--primary);
-      font-size: 24px;
-      margin-bottom: 25px;
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        170deg,
+        rgba(15,17,23,.3) 0%,
+        rgba(26,107,90,.2) 50%,
+        rgba(15,17,23,.92) 100%
+      );
+      z-index: 2;
     }
-    
-    /* Search Input Group - Button on the Right (RTL) */
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      padding: 0 5% 52px;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #fff;
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 48px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: 10px;
+    }
+    .hero-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,.6);
+      margin-bottom: 32px;
+    }
+
+    /* ══ SEARCH BOX (floating over hero) ══ */
+    .search-wrap {
+      position: relative;
+      z-index: 3;
+      margin-top: -36px;
+    }
+    .search-box {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(15,17,23,.12);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .search-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
     .search-group {
       display: flex;
-      background: #f1f3f5;
-      border-radius: 15px;
+      background: var(--surface);
+      border-radius: 14px;
       padding: 5px;
-      border: 2px solid transparent;
-      transition: 0.3s;
+      border: 1.5px solid var(--border);
+      transition: border-color .2s, box-shadow .2s;
     }
     .search-group:focus-within {
-      border-color: var(--primary);
-      background: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(26,107,90,.1);
+      background: var(--card);
     }
     .search-group input {
       flex: 1;
       border: none;
       background: transparent;
-      padding: 15px 20px;
-      font-size: 17px;
-      font-family: inherit;
+      padding: 13px 18px;
+      font-size: 15px;
+      font-family: "Tajawal", sans-serif;
+      color: var(--ink);
       outline: none;
     }
+    .search-group input::placeholder { color: var(--muted); }
     .search-group button {
-      background: var(--primary);
-      color: white;
+      background: var(--ink);
+      color: #fff;
       border: none;
-      padding: 0 35px;
-      border-radius: 12px;
+      padding: 0 28px;
+      border-radius: 10px;
+      font-family: "Tajawal", sans-serif;
       font-weight: 700;
-      font-size: 17px;
+      font-size: 14px;
       cursor: pointer;
-      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .2s, transform .15s;
+    }
+    .search-group button:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* ══ PAGE BODY ══ */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ══ SECTION HEADER ══ */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .search-group button:hover {
-      background: var(--secondary);
-      transform: scale(1.02);
-    }
-
-    /* ===== Recommendations ===== */
-    .recommendations { margin-top: 50px; }
-    .recommendations h2{
-      color:var(--primary);
-      margin-bottom:25px;
-      font-size: 28px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .recommendations h2::after {
+    .section-label::after {
       content: '';
       flex: 1;
-      height: 2px;
-      background: #eee;
+      height: 1px;
+      background: var(--border);
     }
-    
-    .cards{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:25px;
+    .section-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: -.5px;
+      margin-bottom: 28px;
     }
-    .card{
-      background:var(--white);
-      border-radius:18px;
-      overflow:hidden;
-      box-shadow:0 10px 25px rgba(0,0,0,.05);
-      transition:.3s;
-      border: 1px solid #eee;
+
+    /* ══ CARDS GRID (same style as rec-card in place_detail) ══ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
     }
-    .card:hover{ 
-      transform:translateY(-10px);
-      box-shadow: 0 15px 35px rgba(0,0,0,.1);
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      color: inherit;
+      transition: transform .3s cubic-bezier(.175,.885,.32,1.275), border-color .2s, box-shadow .2s;
     }
-    .card-img-wrapper {
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 16px 40px rgba(26,107,90,.12);
+    }
+    .card-img-wrap {
       position: relative;
-      height: 180px;
+      height: 190px;
+      overflow: hidden;
     }
-    .card img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .5s;
     }
+    .card:hover .card-img-wrap img { transform: scale(1.07); }
     .card-badge {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(255,255,255,0.9);
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
+      top: 12px;
+      right: 12px;
+      background: rgba(15,17,23,.75);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--primary);
+      letter-spacing: .3px;
     }
-    .card .info{
-      padding:20px;
+    .card-body {
+      padding: 20px 22px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
-    .card h4 { margin: 0 0 8px 0; font-size: 19px; color: #222; }
-    .card .location { color: #777; font-size: 14px; display: flex; align-items: center; gap: 5px; }
-    .card .rating {
-      margin-top: 15px;
+    .card-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+      letter-spacing: -.2px;
+    }
+    .card-loc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .card-loc i { color: var(--accent); font-size: 11px; }
+    .card-footer {
+      margin-top: auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
     }
-    .stars { color: var(--accent); font-weight: 700; }
-
-    footer{
-      margin-top:60px;
-      background:#011627;
-      color:#fff;
-      padding:40px 20px;
-      text-align:center;
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-2);
+      font-family: "IBM Plex Mono", monospace;
     }
-    .footer-content { opacity: 0.7; font-size: 14px; }
+    .card-cta {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-    @media(max-width:600px){
-      .hero h1 { font-size: 30px; }
-      .search-box { padding: 25px; }
-      .search-group { flex-direction: column; gap: 10px; background: transparent; }
-      .search-group input { background: #f1f3f5; border-radius: 12px; }
-      .search-group button { padding: 15px; border-radius: 12px; }
+    /* ══ EMPTY STATE ══ */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+    }
+    .empty-state i {
+      font-size: 40px;
+      color: var(--border);
+      margin-bottom: 16px;
+      display: block;
+    }
+    .empty-state p { font-size: 15px; }
+
+    /* ══ FOOTER (identical to place_detail) ══ */
+    footer {
+      background: var(--ink);
+      color: rgba(255,255,255,.5);
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 13px;
+      line-height: 2;
+    }
+    footer strong { color: rgba(255,255,255,.85); font-weight: 700; }
+
+    /* ══ ANIMATIONS ══ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fu  { animation: fadeUp .45s ease both; }
+    .fu1 { animation-delay: .05s; }
+    .fu2 { animation-delay: .1s; }
+    .fu3 { animation-delay: .15s; }
+    .fu4 { animation-delay: .2s; }
+
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 768px) {
+      .navbar { grid-template-columns: 1fr 1fr; }
+      .navbar-center { display: none; }
+      .hero { height: 360px; }
+      .hero-title { font-size: 32px; letter-spacing: -.8px; }
+      .search-box { padding: 20px; border-radius: 16px; }
+      .search-group { flex-direction: column; gap: 8px; background: transparent; border: none; }
+      .search-group:focus-within { box-shadow: none; }
+      .search-group input { background: var(--surface); border-radius: 12px; border: 1.5px solid var(--border); }
+      .search-group button { padding: 14px; border-radius: 12px; justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 26px; }
+      .page-body { padding: 32px 16px 60px; }
     }
   </style>
 </head>
 
 <body>
 
-<!-- Navbar -->
+<!-- ══ NAVBAR ══ -->
 <nav class="navbar">
-  <!-- اليمين: اللوجو -->
-  <a href="{% url 'home' %}" class="logo-container">
-    <div class="logo-icon"><i class="fa-solid fa-earth-africa"></i></div>
-    <div class="logo-text">سياحة ذكية</div>
+  <a href="{% url 'home' %}" class="logo-link">
+    <span class="logo-dot"></span>
+    <span class="logo-name">سياحة ذكية</span>
   </a>
 
-  <!-- المنتصف: اسم المستخدم -->
   <div class="navbar-center">
     {% if user.is_authenticated %}
-      <div class="user-welcome">
-        <i class="fa-solid fa-circle-user"></i>
-        مرحباً، {{ user.username }}
-      </div>
+    <div class="user-pill">
+      <i class="fa-solid fa-circle-user"></i>
+      {{ user.username }}
+    </div>
     {% endif %}
   </div>
 
-  <!-- اليسار: الروابط -->
   <div class="nav-links">
-    <a href="{% url 'home' %}">الرئيسية</a>
+    <a href="{% url 'home' %}" class="btn-nav btn-nav-solid">
+      <i class="fa-solid fa-house"></i> الرئيسية
+    </a>
     {% if user.is_authenticated %}
-      <a href="{% url 'favorites' %}">المفضلة</a>
-      <a href="{% url 'profile' %}" class="btn-login">حسابي</a>
+      <a href="{% url 'favorites' %}" class="btn-nav btn-nav-ghost">
+        <i class="fa-solid fa-heart"></i> المفضلة
+      </a>
+      <a href="{% url 'profile' %}" class="btn-nav btn-nav-ghost">
+        <i class="fa-solid fa-user"></i> حسابي
+      </a>
     {% else %}
-      <a href="{% url 'login' %}">دخول</a>
-      <a href="{% url 'register' %}" class="btn-login">ابدأ الآن</a>
+      <a href="{% url 'login' %}" class="btn-nav btn-nav-ghost">دخول</a>
+      <a href="{% url 'register' %}" class="btn-nav btn-nav-solid">ابدأ الآن</a>
     {% endif %}
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- ══ HERO ══ -->
 <div class="hero">
-  <h1>اكتشف وجهتك القادمة</h1>
-  <p>نظام ذكي يقترح لك أفضل الأماكن السياحية بناءً على ذوقك الخاص</p>
-</div>
-
-<!-- Main Content -->
-<div class="container">
-
-    <!-- Search Section -->
-    <section class="search-section">
-      <div class="search-box">
-        <h2>أين تريد الذهاب؟</h2>
-        <form method="get" action="{% url 'search' %}">
-          <div class="search-group">
-            <!-- Button on the Right (First in RTL flow) -->
-            <button type="submit">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              بحث
-            </button>
-            <input
-              type="text"
-              name="query"
-              placeholder="ابحث عن مدينة، معلم سياحي، أو نشاط..."
-              required
-            >
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- Recommendations -->
-    <section class="recommendations">
-      <h2><i class="fa-solid fa-wand-magic-sparkles"></i> وجهات مقترحة لك</h2>
-    
-      <div class="cards">
-        {% for place in top_places %}
-        <div class="card">
-          <a href="{% url 'place_detail' place.id %}" style="text-decoration: none; color: inherit;">
-            <div class="card-img-wrapper">
-              <img src="{{ place.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" alt="{{ place.name }}">
-              <span class="card-badge">{{ place.category }}</span>
-            </div>
-            <div class="info">
-              <h4>{{ place.name }}</h4>
-              <div class="location">
-                <i class="fa-solid fa-location-dot"></i>
-                {{ place.city }}، {{ place.country }}
-              </div>
-              <div class="rating">
-                <span class="stars"><i class="fa-solid fa-star"></i> {{ place.rating }}</span>
-                <span class="text-muted small">تفاصيل <i class="fa-solid fa-arrow-left"></i></span>
-              </div>
-            </div>
-          </a>
-        </div>
-        {% empty %}
-        <p class="text-center w-100 py-5 text-muted">لا توجد وجهات مقترحة حالياً.</p>
-        {% endfor %}
-      </div>
-    </section>
-    
-</div>
-
-<footer>
-  <div class="footer-content">
-    <p>نظام التوصية السياحي الذكي &copy; 2026</p>
-    <p>مشروع تخرج بكلاريوس | تطوير: فارس النذير & مجتبى أحمد</p>
+  <div class="hero-grid-overlay"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-content fu fu1">
+    <span class="hero-tag">
+      <i class="fa-solid fa-earth-africa"></i> استكشف العالم
+    </span>
+    <h1 class="hero-title">اكتشف وجهتك القادمة</h1>
+    <p class="hero-sub">نظام ذكي يقترح لك أفضل الأماكن السياحية بناءً على ذوقك الخاص</p>
   </div>
+</div>
+
+<!-- ══ FLOATING SEARCH ══ -->
+<div class="page-body" style="padding-top: 0;">
+  <div class="search-wrap fu fu2">
+    <div class="search-box">
+      <div class="search-label"><i class="fa-solid fa-magnifying-glass"></i> ابحث عن وجهتك</div>
+      <form method="get" action="{% url 'search' %}">
+        <div class="search-group">
+          <button type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            بحث
+          </button>
+          <input
+            type="text"
+            name="query"
+            placeholder="ابحث عن مدينة، معلم سياحي، أو نشاط..."
+            required
+          >
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══ RECOMMENDATIONS ══ -->
+  <div style="margin-top: 56px;" class="fu fu3">
+    <div class="section-label"><i class="fa-solid fa-wand-magic-sparkles"></i> وجهات مقترحة لك</div>
+    <div class="section-title">وجهات مقترحة لك</div>
+
+    <div class="cards-grid">
+      {% for place in top_places %}
+      <a href="{% url 'place_detail' place.id %}" class="card">
+        <div class="card-img-wrap">
+          <img src="{{ place.image_url|default:'https://images.unsplash.com/photo-1501785888041-af3ef285b470' }}" alt="{{ place.name }}" loading="lazy">
+          <span class="card-badge">{{ place.category }}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-name">{{ place.name }}</div>
+          <div class="card-loc">
+            <i class="fa-solid fa-location-dot"></i>
+            {{ place.city }}، {{ place.country }}
+          </div>
+          <div class="card-footer">
+            <div class="card-rating">
+              <i class="fa-solid fa-star"></i> {{ place.rating }}
+            </div>
+            <span class="card-cta">
+              عرض التفاصيل <i class="fa-solid fa-chevron-left"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="empty-state" style="grid-column: 1/-1;">
+        <i class="fa-solid fa-compass"></i>
+        <p>لا توجد وجهات مقترحة حالياً.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <p><strong>نظام التوصية السياحي الذكي</strong> &copy; 2026</p>
+  <p>مشروع تخرج بكلاريوس | تطوير: فارس النذير &amp; مجتبى أحمد</p>
 </footer>
 
 </body>
