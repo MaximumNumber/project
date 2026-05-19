@@ -15,7 +15,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse
 from django.db.models import Q
-
+from django.views.decorators.cache import never_cache
+from django.views.decorators.vary import vary_on_cookie
 from .models import Favorite, UserRating, Place
 from .forms import RegisterForm
 from .utils import get_weather, arabic_query_expand
@@ -297,39 +298,51 @@ def search(request):
         return render(request, "recommendation/results.html", {"message": "يرجى كتابة كلمة للبحث"})
 
     is_ar = is_arabic_text(query)
-
-    content_results = get_content_recommendations(query, is_ar=is_ar)
+    content_results = get_content_recommendations(query, is_ar=is_ar, top_k=20)
 
     collab_scores = {}
-    
-    content_weight = 0.7 # الوزن الافتراضي للمحتوى
-    collab_weight = 0.3  # الوزن الافتراضي للتعاوني
+    content_weight = 0.7
+    collab_weight = 0.3
 
     if request.user.is_authenticated:
         user_id = request.user.id
         user_ratings_count = UserRating.objects.filter(user_id=user_id).count()
-        if user_ratings_count < 5: # مستخدم جديد جداً
+
+        if user_ratings_count < 5:
             content_weight = 1.0
             collab_weight = 0.0
-        elif user_ratings_count < 15: # مستخدم جديد
+        elif user_ratings_count < 15:
             content_weight = 0.8
             collab_weight = 0.2
-        else: # مستخدم لديه خبرة كافية
+        else:
             content_weight = 0.5
             collab_weight = 0.5
 
-        collab_scores = get_collaborative_recommendations_svd(user_id)
+        collab_scores = get_collaborative_recommendations_svd(user_id, top_k=50)
 
+        # *** الإضافة المهمة ***
+        # أضف الأماكن من الـ Collaborative التي لم تظهر في نتائج البحث
+        collab_scores = get_collaborative_recommendations_svd(user_id, top_k=50)
+
+# أضف أماكن الـ collab التي لم تظهر في نتائج البحث
+        if collab_weight > 0 and collab_scores:
+            content_place_ids = {res["place"].id for res in content_results}
+            extra_ids = [pid for pid in collab_scores if pid not in content_place_ids]
+            if extra_ids:
+                extra_places = Place.objects.filter(id__in=extra_ids[:15])
+                for p in extra_places:
+                    content_results.append({
+                    "place": p,
+                    "content_score": 0
+            })
+
+    # باقي الكود كما هو...
     hybrid_results = []
     for res in content_results:
         place = res["place"]
         c_score = res["content_score"]
-        
-        # دمج التصفية التعاونية (Collaborative Filtering)
         raw_coll_score = collab_scores.get(place.id, 0)
-        # تحويل تقييم SVD (1-5) إلى مقياس 0-100
-        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score # إذا لم يكن هناك تقييم تعاوني، استخدم درجة المحتوى
-        
+        coll_score = (raw_coll_score / 5.0) * 100 if raw_coll_score > 0 else c_score
         final_score = (c_score * content_weight) + (coll_score * collab_weight)
 
         hybrid_results.append({
@@ -343,6 +356,8 @@ def search(request):
             "place_id": place.id,
             "image_url": place.image_url,
         })
+
+
 
     if not hybrid_results:
         return render(request, "recommendation/results.html", {
@@ -365,8 +380,35 @@ def search(request):
 # ----------------------------
 # الدوال الأساسية الأخرى
 # ----------------------------
+@never_cache 
+@vary_on_cookie
 def home(request):
-    top_places = Place.objects.all().order_by('-rating')[:5]
+    if request.user.is_authenticated:
+        user_id = request.user.id
+        user_ratings_count = UserRating.objects.filter(user_id=user_id).count()
+
+        if user_ratings_count >= 3:
+            # مستخدم لديه تقييمات - استخدم SVD مباشرة
+            collab_scores = get_collaborative_recommendations_svd(user_id, top_k=20)
+            print(collab_scores)
+            if collab_scores:
+                place_ids = list(collab_scores.keys())
+                places = Place.objects.filter(id__in=place_ids)
+                # رتب حسب SVD score
+                places_dict = {p.id: p for p in places}
+                top_places = sorted(
+                    [places_dict[pid] for pid in place_ids if pid in places_dict],
+                    key=lambda p: collab_scores[p.id],
+                    reverse=True
+                )[:5]
+            else:
+                top_places = list(Place.objects.all().order_by('-rating')[:5])
+        else:
+            # مستخدم جديد - أعلى تقييماً
+            top_places = list(Place.objects.all().order_by('-rating')[:5])
+    else:
+        top_places = list(Place.objects.all().order_by('-rating')[:5])
+
     return render(request, "recommendation/search.html", {"top_places": top_places})
 
 def search_page(request):

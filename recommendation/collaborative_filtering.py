@@ -74,7 +74,7 @@ def get_svd_recommendations(user_id, top_k=10):
         sorted_recs = unrated_places_predictions.sort_values(ascending=False)
 
         # إرجاع أفضل k توصية كقاموس (place_id: predicted_rating)
-        return sorted_recs.head(top_k).to_dict()
+        return {int(k): float(v) for k, v in sorted_recs.head(top_k).items()}
 
     except Exception as e:
         # معالجة أخطاء محددة لسهولة التصحيح
